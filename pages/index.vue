@@ -2,12 +2,44 @@
   <div class="container">
     <h1>โค้งสุดท้าย 7 มติแก้รัฐธรรมนูญ</h1>
     <LiveBadge :config="config"></LiveBadge>
+
+    <div class="filter-box-wrap">
+      <el-select v-model="value" placeholder="Select">
+        <el-option
+          v-for="item in options"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value"
+        >
+        </el-option>
+      </el-select>
+
+      <div class="legend-wrap">
+        <div class="legend">
+          <div class="circle"></div>
+          <p class="text">รับ</p>
+        </div>
+        <div class="legend">
+          <div class="circle"></div>
+          <p class="text">ไม่รับ</p>
+        </div>
+        <div class="legend">
+          <div class="circle"></div>
+          <p class="text">งดออกเสียง</p>
+        </div>
+        <div class="legend">
+          <div class="circle"></div>
+          <p class="text">ขาดประชุม</p>
+        </div>
+      </div>
+    </div>
+
     <div class="wrapper">
       <table id="vote-log-table">
         <th v-for="(h, index) in header" :key="index">
           {{ h }}
         </th>
-        <tr v-for="d in live_vote" :key="'section' + d.id" class="grid-row">
+        <tr v-for="d in data" :key="'section' + d.id" class="grid-row">
           <td>
             {{ d.fullname }}
           </td>
@@ -85,62 +117,41 @@ export default {
       config,
       header: [
         'ชื่อ',
-        'ร่างเพื่อไทย',
-        'ร่างเพื่อไทย',
-        'ร่างเพื่อไทย',
-        'ร่างเพื่อไทย',
-        'ร่างเพื่อไทย',
-        'ร่างเพื่อไทย',
-        'ร่างเพื่อไทย',
+        'ร่างรัฐบาล',
+        'ร่างเพื่อไทย 1',
+        'ร่างเพื่อไทย 2',
+        'ร่างเพื่อไทย 3',
+        'ร่างเพื่อไทย 4',
+        'ร่างเพื่อไทย 5',
+        'ร่างประชาชน',
       ],
-      people: [
-        {
-          id: 1,
-          title: 'นาย',
-          name: 'สุชาติ',
-          lastname: 'โชคชัยวัฒนากร',
-          team: 'ฝ่ายรัฐบาล',
-          party: 'ภูมิใจไทย',
-          votelog_con_1: 1,
-          votelog_con_2: 2,
-          votelog_con_3: 3,
-          votelog_con_4: 4,
-          votelog_con_5: 5,
-          votelog_con_6: 5,
-          votelog_con_7: 5,
-        },
-        {
-          id: 2,
-          title: 'นาย',
-          name: 'สุชาติ',
-          lastname: 'โชคชัยวัฒนากร',
-          team: 'ฝ่ายค้าน',
-          party: 'เพื่อไทย',
-          votelog_con_1: 2,
-          votelog_con_2: 3,
-          votelog_con_3: 4,
-          votelog_con_4: 5,
-          votelog_con_5: 1,
-          votelog_con_6: 2,
-          votelog_con_7: 3,
-        },
-        {
-          id: 3,
-          title: 'นาย',
-          name: 'สุชาติ',
-          lastname: 'โชคชัยวัฒนากร',
-          team: '-',
-          party: 'ส.ว.',
-          votelog_con_1: 3,
-          votelog_con_2: 4,
-          votelog_con_3: 5,
-          votelog_con_4: 1,
-          votelog_con_5: 2,
-          votelog_con_6: 3,
-          votelog_con_7: 4,
-        },
-      ],
+      // master data
       live_vote: [],
+      // filtered data derived from "live_data"
+      data: [],
+      options: [
+        {
+          value: 'ทั้งหมด',
+          label: 'ทั้งหมด',
+        },
+        {
+          value: 'ส.ว.',
+          label: 'ส.ว. ทั้งหมด',
+        },
+        {
+          value: 'ส.ส.',
+          label: 'ส.ส. ทั้งหมด',
+        },
+        {
+          value: 'ฝ่ายค้าน',
+          label: 'ส.ส. ฝ่ายค้าน',
+        },
+        {
+          value: 'ฝ่ายรัฐบาล',
+          label: 'ส.ส. ฝ่ายรัฐบาล',
+        },
+      ],
+      value: 'ทั้งหมด',
     }
   },
   created() {
@@ -151,12 +162,12 @@ export default {
   },
 
   async fetch() {
+    const is_first_fetch = this.live_vote.length === 0
     // For development: Need to bypass CORS using extension
     // @see https://chrome.google.com/webstore/detail/moesif-origin-cors-change/digfbfaphojjndkpccljibejjbppifbc/related
     this.live_vote = await this.$axios.$get('https://elect.in.th/con-vote/data/live_vote.json')
     const now = DateTime.local()
     const keys = ['con_1', 'con_2', 'con_3', 'con_4', 'con_5', 'con_6', 'con_7']
-    this.live_vote[1].con_2_updated_at = DateTime.local().minus({ minutes: 1 }).toISO()
     this.live_vote.forEach((person) => {
       person.type = person.team + '/' + person.party
       person.fullname = `${person.title} ${person.name} ${person.lastname}`
@@ -165,9 +176,51 @@ export default {
         person[`${con}_is_fresh`] = isFresh(person, con)
       })
     })
+
+    // Intiailize filter
+    if (is_first_fetch) {
+      this.setFilter()
+    }
   },
   fetchOnServer: false,
   methods: {
+    setFilter() {
+      let group_party = _.groupBy(this.live_vote, 'party')
+      for (const key in group_party) {
+        if (key !== 'ส.ว.') {
+          this.options.push({
+            value: key,
+            label: `พรรค ${key}`,
+          })
+        }
+      }
+      this.options = _.sortBy(this.options, 'id')
+    },
+    filterPeople() {
+      if (this.value === 'ทั้งหมด') {
+        this.data = this.live_vote
+      } else if (this.value === 'ส.ว.') {
+        this.data = this.live_vote.filter((d) => {
+          return d.party === this.value
+        })
+      } else if (this.value === 'ส.ส.') {
+        this.data = this.live_vote.filter((d) => {
+          return d.party !== 'ส.ว.'
+        })
+      } else if (this.value === 'ฝ่ายค้าน') {
+        this.data = this.live_vote.filter((d) => {
+          return d.team === this.value
+        })
+      } else if (this.value === 'ฝ่ายรัฐบาล') {
+        this.data = this.live_vote.filter((d) => {
+          return d.team === this.value
+        })
+      } else {
+        this.data = this.live_vote.filter((d) => {
+          return d.party === this.value
+        })
+      }
+    },
     setColor(data) {
       let color = ''
       if (data === '1') {
@@ -184,6 +237,11 @@ export default {
       return color
     },
   },
+  watch: {
+    value() {
+      this.filterPeople()
+    },
+  },
 }
 </script>
 
@@ -192,10 +250,84 @@ export default {
   margin: 0 auto;
   min-height: 100vh;
   text-align: center;
-  padding: 45px 0;
+  padding: 30px 10%;
 }
+.filter-box-wrap {
+  display: flex;
+  justify-content: center;
+  margin: 40px 0;
+}
+.legend-wrap {
+  display: flex;
+  padding-left: 20px;
+  .legend {
+    display: flex;
+    align-items: center;
+    margin: 0 10px;
+    .circle {
+      width: 15px;
+      height: 15px;
+      border-radius: 100%;
+      margin-right: 10px;
+    }
+    .text {
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+  }
+  .legend:nth-child(1) {
+    .circle {
+      background: $green-100;
+    }
+  }
+  .legend:nth-child(2) {
+    .circle {
+      background: $red-100;
+    }
+  }
+  .legend:nth-child(3) {
+    .circle {
+      background: $blue-100;
+    }
+  }
+  .legend:nth-child(4) {
+    .circle {
+      background: $grey-100;
+    }
+  }
+}
+
+::v-deep.el-select .el-input.is-focus .el-input__inner,
+::v-deep.el-select .el-input__inner:focus,
+.el-input__inner:focus {
+  border-color: $grey-200;
+}
+.el-select-dropdown__item {
+  font-size: 1.8rem;
+  color: #000;
+}
+.el-select-dropdown__item.selected {
+  color: #000;
+}
+.el-select-dropdown__item:hover {
+  background: rgba($color: $yellow-100, $alpha: 0.5);
+}
+::v-deep.el-select .el-input {
+  width: 250px;
+}
+::v-deep.el-select .el-input__inner {
+  border-color: $grey-200;
+  font-family: 'NotoSansThai' !important;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #000;
+}
+.el-select-dropdown__item.hover {
+  background: rgba($color: $yellow-100, $alpha: 0.5);
+}
+
 .wrapper {
-  padding: 50px;
+  margin: 40px 0;
   .circle {
     width: 10px;
     height: 10px;
@@ -206,8 +338,7 @@ export default {
   }
   #vote-log-table th,
   #vote-log-table td {
-    font-family: 'NotoSansThai';
-    font-size: 1.4rem;
+    font-size: 1.6rem;
     color: #000;
     border: 1px solid $grey-200;
     padding: 8px 15px;
@@ -218,9 +349,6 @@ export default {
     background-color: $grey-100;
     padding-top: 12px;
     padding-bottom: 12px;
-  }
-  #vote-log-table td {
-    font-weight: 400;
   }
   #vote-log-table {
     border-collapse: collapse;
