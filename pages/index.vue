@@ -1,15 +1,38 @@
 <template>
   <div class="container">
     <h1>โค้งสุดท้าย 7 มติแก้รัฐธรรมนูญ</h1>
-    <el-select v-model="value" placeholder="Select">
-      <el-option
-        v-for="item in options"
-        :key="item.value"
-        :label="item.label"
-        :value="item.value"
-      >
-      </el-option>
-    </el-select>
+
+    <div class="filter-box-wrap">
+      <el-select v-model="value" placeholder="Select">
+        <el-option
+          v-for="item in options"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value"
+        >
+        </el-option>
+      </el-select>
+
+      <div class="legend-wrap">
+        <div class="legend">
+          <div class="circle"></div>
+          <p class="text">รับ</p>
+        </div>
+        <div class="legend">
+          <div class="circle"></div>
+          <p class="text">ไม่รับ</p>
+        </div>
+        <div class="legend">
+          <div class="circle"></div>
+          <p class="text">งดออกเสียง</p>
+        </div>
+        <div class="legend">
+          <div class="circle"></div>
+          <p class="text">ขาดประชุม</p>
+        </div>
+      </div>
+    </div>
+
     <div class="wrapper">
       <table id="vote-log-table">
         <th v-for="(h, index) in header" :key="index">
@@ -76,13 +99,13 @@ export default {
     return {
       header: [
         'ชื่อ',
-        'ร่างเพื่อไทย',
-        'ร่างเพื่อไทย',
-        'ร่างเพื่อไทย',
-        'ร่างเพื่อไทย',
-        'ร่างเพื่อไทย',
-        'ร่างเพื่อไทย',
-        'ร่างเพื่อไทย',
+        'ร่างรัฐบาล',
+        'ร่างเพื่อไทย 1',
+        'ร่างเพื่อไทย 2',
+        'ร่างเพื่อไทย 3',
+        'ร่างเพื่อไทย 4',
+        'ร่างเพื่อไทย 5',
+        'ร่างประชาชน',
       ],
       data: [],
       options: [
@@ -186,11 +209,84 @@ export default {
   margin: 0 auto;
   min-height: 100vh;
   text-align: center;
-  padding: 45px 0;
+  padding: 30px 10%;
+}
+.filter-box-wrap {
+  display: flex;
+  justify-content: center;
+  margin: 40px 0;
+}
+.legend-wrap {
+  display: flex;
+  padding-left: 20px;
+  .legend {
+    display: flex;
+    align-items: center;
+    margin: 0 10px;
+    .circle {
+      width: 15px;
+      height: 15px;
+      border-radius: 100%;
+      margin-right: 10px;
+    }
+    .text {
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+  }
+  .legend:nth-child(1) {
+    .circle {
+      background: $green-100;
+    }
+  }
+  .legend:nth-child(2) {
+    .circle {
+      background: $red-100;
+    }
+  }
+  .legend:nth-child(3) {
+    .circle {
+      background: $blue-100;
+    }
+  }
+  .legend:nth-child(4) {
+    .circle {
+      background: $grey-100;
+    }
+  }
+}
+
+::v-deep.el-select .el-input.is-focus .el-input__inner,
+::v-deep.el-select .el-input__inner:focus,
+.el-input__inner:focus {
+  border-color: $grey-200;
+}
+.el-select-dropdown__item {
+  font-size: 1.8rem;
+  color: #000;
+}
+.el-select-dropdown__item.selected {
+  color: #000;
+}
+.el-select-dropdown__item:hover {
+  background: rgba($color: $yellow-100, $alpha: 0.5);
+}
+::v-deep.el-select .el-input {
+  width: 250px;
+}
+::v-deep.el-select .el-input__inner {
+  border-color: $grey-200;
+  font-family: 'NotoSansThai' !important;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #000;
+}
+.el-select-dropdown__item.hover {
+  background: rgba($color: $yellow-100, $alpha: 0.5);
 }
 
 .wrapper {
-  padding: 50px;
+  margin: 40px 0;
   .circle {
     width: 10px;
     height: 10px;
@@ -198,8 +294,7 @@ export default {
   }
   #vote-log-table th,
   #vote-log-table td {
-    font-family: 'NotoSansThai';
-    font-size: 1.4rem;
+    font-size: 1.6rem;
     color: #000;
     border: 1px solid $grey-200;
     padding: 8px 15px;
@@ -210,9 +305,6 @@ export default {
     background-color: $grey-100;
     padding-top: 12px;
     padding-bottom: 12px;
-  }
-  #vote-log-table td {
-    font-weight: 400;
   }
   #vote-log-table {
     border-collapse: collapse;
