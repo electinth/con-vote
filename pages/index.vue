@@ -1,12 +1,21 @@
 <template>
   <div class="container">
     <h1>โค้งสุดท้าย 7 มติแก้รัฐธรรมนูญ</h1>
+    <el-select v-model="value" placeholder="Select">
+      <el-option
+        v-for="item in options"
+        :key="item.value"
+        :label="item.label"
+        :value="item.value"
+      >
+      </el-option>
+    </el-select>
     <div class="wrapper">
       <table id="vote-log-table">
         <th v-for="(h, index) in header" :key="index">
           {{ h }}
         </th>
-        <tr v-for="d in live_vote" :key="'section' + d.id" class="grid-row">
+        <tr v-for="d in data" :key="'section' + d.id" class="grid-row">
           <td>
             {{ d.fullname }}
           </td>
@@ -75,65 +84,79 @@ export default {
         'ร่างเพื่อไทย',
         'ร่างเพื่อไทย',
       ],
-      people: [
+      data: [],
+      options: [
         {
-          id: 1,
-          title: 'นาย',
-          name: 'สุชาติ',
-          lastname: 'โชคชัยวัฒนากร',
-          team: 'ฝ่ายรัฐบาล',
-          party: 'ภูมิใจไทย',
-          votelog_con_1: 1,
-          votelog_con_2: 2,
-          votelog_con_3: 3,
-          votelog_con_4: 4,
-          votelog_con_5: 5,
-          votelog_con_6: 5,
-          votelog_con_7: 5,
+          value: 'ทั้งหมด',
+          label: 'ทั้งหมด',
         },
         {
-          id: 2,
-          title: 'นาย',
-          name: 'สุชาติ',
-          lastname: 'โชคชัยวัฒนากร',
-          team: 'ฝ่ายค้าน',
-          party: 'เพื่อไทย',
-          votelog_con_1: 2,
-          votelog_con_2: 3,
-          votelog_con_3: 4,
-          votelog_con_4: 5,
-          votelog_con_5: 1,
-          votelog_con_6: 2,
-          votelog_con_7: 3,
+          value: 'ส.ว.',
+          label: 'ส.ว. ทั้งหมด',
         },
         {
-          id: 3,
-          title: 'นาย',
-          name: 'สุชาติ',
-          lastname: 'โชคชัยวัฒนากร',
-          team: '-',
-          party: 'ส.ว.',
-          votelog_con_1: 3,
-          votelog_con_2: 4,
-          votelog_con_3: 5,
-          votelog_con_4: 1,
-          votelog_con_5: 2,
-          votelog_con_6: 3,
-          votelog_con_7: 4,
+          value: 'ส.ส.',
+          label: 'ส.ส. ทั้งหมด',
+        },
+        {
+          value: 'ฝ่ายค้าน',
+          label: 'ส.ส. ฝ่ายค้าน',
+        },
+        {
+          value: 'ฝ่ายรัฐบาล',
+          label: 'ส.ส. ฝ่ายรัฐบาล',
         },
       ],
-      live_vote: [],
+      value: 'ทั้งหมด',
     }
   },
   created() {
-    this.live_vote = live_vote_data
-    this.live_vote.map((i) => {
-      i.type = i.team + '/' + i.party
+    this.data = live_vote_data
+    live_vote_data.map((i) => {
+      // i.type = i.team + '/' + i.party
       i.fullname = `${i.title} ${i.name} ${i.lastname}`
     })
-    console.log('this.people', this.live_vote)
+    console.log('this.people', live_vote_data)
+    this.setFilter()
   },
   methods: {
+    setFilter() {
+      let group_party = _.groupBy(live_vote_data, 'party')
+      for (const key in group_party) {
+        if (key !== 'ส.ว.') {
+          this.options.push({
+            value: key,
+            label: `พรรค ${key}`,
+          })
+        }
+      }
+      this.options = _.sortBy(this.options, 'id')
+    },
+    filterPeople() {
+      if (this.value === 'ทั้งหมด') {
+        this.data = live_vote_data
+      } else if (this.value === 'ส.ว.') {
+        this.data = live_vote_data.filter((d) => {
+          return d.party === this.value
+        })
+      } else if (this.value === 'ส.ส.') {
+        this.data = live_vote_data.filter((d) => {
+          return d.party !== 'ส.ว.'
+        })
+      } else if (this.value === 'ฝ่ายค้าน') {
+        this.data = live_vote_data.filter((d) => {
+          return d.team === this.value
+        })
+      } else if (this.value === 'ฝ่ายรัฐบาล') {
+        this.data = live_vote_data.filter((d) => {
+          return d.team === this.value
+        })
+      } else {
+        this.data = live_vote_data.filter((d) => {
+          return d.party === this.value
+        })
+      }
+    },
     setColor(data) {
       let color = ''
       if (data === '1') {
@@ -150,6 +173,11 @@ export default {
       return color
     },
   },
+  watch: {
+    value() {
+      this.filterPeople()
+    },
+  },
 }
 </script>
 
@@ -160,6 +188,7 @@ export default {
   text-align: center;
   padding: 45px 0;
 }
+
 .wrapper {
   padding: 50px;
   .circle {
