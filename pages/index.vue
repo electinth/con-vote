@@ -180,8 +180,9 @@ export default {
     // Intiailize filter
     if (is_first_fetch) {
       this.setFilter()
-      this.data = this.live_vote
     }
+
+    this.filterPeople();
   },
   fetchOnServer: false,
   methods: {
