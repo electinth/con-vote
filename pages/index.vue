@@ -1,6 +1,7 @@
 <template>
   <div class="container">
     <h1>โค้งสุดท้าย 7 มติแก้รัฐธรรมนูญ</h1>
+    <LiveBadge :config="config"></LiveBadge>
     <div class="wrapper">
       <table id="vote-log-table">
         <th v-for="(h, index) in header" :key="index">
@@ -60,11 +61,16 @@
 
 <script>
 import _ from 'lodash'
-import live_vote_data from '../static/data/live_vote.json'
+import LiveBadge from '@/components/LiveBadge'
+import config from '@/data/config.json'
 
 export default {
+  components: {
+    LiveBadge
+  },
   data() {
     return {
+      config,
       header: [
         'ชื่อ',
         'ร่างเพื่อไทย',
