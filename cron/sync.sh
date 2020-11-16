@@ -15,6 +15,7 @@ mkdir -p data
 export JSON_FILE=data/live_vote.json
 export CSV_FILE=data/live_vote_$(date --iso-8601=minutes).csv
 export NODE=/root/n/bin/node
+# export NODE=node
 
 # Download data from Google Sheets
 # Transform CSV to JSON
@@ -23,7 +24,8 @@ curl -L --silent \
   $CSV_URL | sed '1d' > $CSV_FILE 2>&1
 
 # Transform CSV to JSON
-cat $CSV_FILE | $NODE cron/transform.js > $JSON_FILE 2>&1
+cp ${JSON_FILE} ${JSON_FILE}.bk
+cat $CSV_FILE | $NODE cron/transform.js --compare ${JSON_FILE}.bk > $JSON_FILE 2>&1
 
 # Upload to production
 scp $JSON_FILE electinth@real.elect.in.th:/home/electinth/www/con-vote/data
