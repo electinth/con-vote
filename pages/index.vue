@@ -1,6 +1,7 @@
 <template>
   <div class="container">
     <h1>โค้งสุดท้าย 7 มติแก้รัฐธรรมนูญ</h1>
+    <LiveBadge :config="config"></LiveBadge>
 
     <div class="filter-box-wrap">
       <el-select v-model="value" placeholder="Select">
@@ -44,43 +45,43 @@
           </td>
           <td>
             <div
-              class="circle"
+              :class="{ circle: true, 'is-fresh': d.con_1_is_fresh }"
               :style="{ background: setColor(d.con_1) }"
             ></div>
           </td>
           <td>
             <div
-              class="circle"
+              :class="{ circle: true, 'is-fresh': d.con_2_is_fresh }"
               :style="{ background: setColor(d.con_2) }"
             ></div>
           </td>
           <td>
             <div
-              class="circle"
+              :class="{ circle: true, 'is-fresh': d.con_3_is_fresh }"
               :style="{ background: setColor(d.con_3) }"
             ></div>
           </td>
           <td>
             <div
-              class="circle"
+              :class="{ circle: true, 'is-fresh': d.con_4_is_fresh }"
               :style="{ background: setColor(d.con_4) }"
             ></div>
           </td>
           <td>
             <div
-              class="circle"
+              :class="{ circle: true, 'is-fresh': d.con_5_is_fresh }"
               :style="{ background: setColor(d.con_5) }"
             ></div>
           </td>
           <td>
             <div
-              class="circle"
+              :class="{ circle: true, 'is-fresh': d.con_6_is_fresh }"
               :style="{ background: setColor(d.con_6) }"
             ></div>
           </td>
           <td>
             <div
-              class="circle"
+              :class="{ circle: true, 'is-fresh': d.con_7_is_fresh }"
               :style="{ background: setColor(d.con_7) }"
             ></div>
           </td>
@@ -92,11 +93,28 @@
 
 <script>
 import _ from 'lodash'
-import live_vote_data from '../static/data/live_vote.json'
+import { DateTime, Interval } from 'luxon'
+import LiveBadge from '@/components/LiveBadge'
+import config from '@/data/config.json'
+
+function isFresh(person, key) {
+  const keyUpdatedAt = `${key}_updated_at`
+  if (!person[key] || !person[keyUpdatedAt]) return false
+  const now = DateTime.local()
+  const update = DateTime.fromISO(person[keyUpdatedAt])
+  const interval = Interval.fromDateTimes(update, now)
+  if (!interval.isValid) return false
+  // Fresh if it just updated within 2 minutes
+  return interval.length('minutes') < 2
+}
 
 export default {
+  components: {
+    LiveBadge
+  },
   data() {
     return {
+      config,
       header: [
         'ชื่อ',
         'ร่างรัฐบาล',
@@ -107,6 +125,9 @@ export default {
         'ร่างเพื่อไทย 5',
         'ร่างประชาชน',
       ],
+      // master data
+      live_vote: [],
+      // filtered data derived from "live_data"
       data: [],
       options: [
         {
@@ -134,17 +155,38 @@ export default {
     }
   },
   created() {
-    this.data = live_vote_data
-    live_vote_data.map((i) => {
-      // i.type = i.team + '/' + i.party
-      i.fullname = `${i.title} ${i.name} ${i.lastname}`
-    })
-    console.log('this.people', live_vote_data)
-    this.setFilter()
+    // Refresh data from source every 15 seconds
+    setInterval(() => {
+      this.$fetch()
+    }, 15 * 1000)
   },
+
+  async fetch() {
+    const is_first_fetch = this.live_vote.length === 0
+    // For development: Need to bypass CORS using extension
+    // @see https://chrome.google.com/webstore/detail/moesif-origin-cors-change/digfbfaphojjndkpccljibejjbppifbc/related
+    this.live_vote = await this.$axios.$get('https://elect.in.th/con-vote/data/live_vote.json')
+    const now = DateTime.local()
+    const keys = ['con_1', 'con_2', 'con_3', 'con_4', 'con_5', 'con_6', 'con_7']
+    this.live_vote.forEach((person) => {
+      person.type = person.team + '/' + person.party
+      person.fullname = `${person.title} ${person.name} ${person.lastname}`
+      // calculate "fresh vote" to show as blinking effect
+      keys.forEach(con => {
+        person[`${con}_is_fresh`] = isFresh(person, con)
+      })
+    })
+
+    // Intiailize filter
+    if (is_first_fetch) {
+      this.setFilter()
+      this.data = this.live_vote
+    }
+  },
+  fetchOnServer: false,
   methods: {
     setFilter() {
-      let group_party = _.groupBy(live_vote_data, 'party')
+      let group_party = _.groupBy(this.live_vote, 'party')
       for (const key in group_party) {
         if (key !== 'ส.ว.') {
           this.options.push({
@@ -157,25 +199,25 @@ export default {
     },
     filterPeople() {
       if (this.value === 'ทั้งหมด') {
-        this.data = live_vote_data
+        this.data = this.live_vote
       } else if (this.value === 'ส.ว.') {
-        this.data = live_vote_data.filter((d) => {
+        this.data = this.live_vote.filter((d) => {
           return d.party === this.value
         })
       } else if (this.value === 'ส.ส.') {
-        this.data = live_vote_data.filter((d) => {
+        this.data = this.live_vote.filter((d) => {
           return d.party !== 'ส.ว.'
         })
       } else if (this.value === 'ฝ่ายค้าน') {
-        this.data = live_vote_data.filter((d) => {
+        this.data = this.live_vote.filter((d) => {
           return d.team === this.value
         })
       } else if (this.value === 'ฝ่ายรัฐบาล') {
-        this.data = live_vote_data.filter((d) => {
+        this.data = this.live_vote.filter((d) => {
           return d.team === this.value
         })
       } else {
-        this.data = live_vote_data.filter((d) => {
+        this.data = this.live_vote.filter((d) => {
           return d.party === this.value
         })
       }
@@ -291,6 +333,9 @@ export default {
     width: 10px;
     height: 10px;
     border-radius: 100%;
+    &.is-fresh {
+      animation: 1s blink ease-out infinite;
+    }
   }
   #vote-log-table th,
   #vote-log-table td {
@@ -312,6 +357,18 @@ export default {
   }
   #vote-log-table tr:hover {
     background-color: $grey-50;
+  }
+}
+
+@keyframes blink {
+  0% {
+    opacity: 1.0;
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1.0;
   }
 }
 </style>
