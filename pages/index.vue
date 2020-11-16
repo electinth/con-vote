@@ -180,6 +180,7 @@ export default {
     // Intiailize filter
     if (is_first_fetch) {
       this.setFilter()
+      this.data = this.live_vote
     }
   },
   fetchOnServer: false,
