@@ -144,10 +144,10 @@ export default {
     }
   },
   created() {
-    // Refresh data from source every 30 seconds
+    // Refresh data from source every 15 seconds
     setInterval(() => {
       this.$fetch()
-    }, 30 * 1000)
+    }, 15 * 1000)
   },
 
   async fetch() {
@@ -160,6 +160,7 @@ export default {
     this.live_vote.forEach((person) => {
       person.type = person.team + '/' + person.party
       person.fullname = `${person.title} ${person.name} ${person.lastname}`
+      // calculate "fresh vote" to show as blinking effect
       keys.forEach(con => {
         person[`${con}_is_fresh`] = isFresh(person, con)
       })
