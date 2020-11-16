@@ -1,0 +1,37 @@
+*,
+html {
+  box-sizing: border-box;
+}
+:root {
+  font-family: 'TheMatter';
+  font-weight: 700;
+  font-size: 62.5%;
+}
+
+// Typography
+h1 {
+  font-size: 4.8rem;
+  font-weight: 800;
+}
+
+// fonts
+@font-face {
+  font-family: 'TheMatter';
+  src: url('../fonts/TheMATTER-ExtraBold.otf');
+  font-weight: 700;
+}
+@font-face {
+  font-family: 'TheMatter';
+  src: url('../fonts/TheMATTER-Bold.otf');
+  font-weight: 800;
+}
+@font-face {
+  font-family: 'NotoSansThai';
+  src: url('../fonts/NotoSansThai-Medium.ttf');
+  font-weight: 400;
+}
+@font-face {
+  font-family: 'NotoSansThai';
+  src: url('../fonts/NotoSansThai-Bold.ttf');
+  font-weight: 700;
+}
