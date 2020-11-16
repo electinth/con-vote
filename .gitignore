@@ -1,0 +1,4 @@
+node_modules
+
+live_vote.*
+.env
