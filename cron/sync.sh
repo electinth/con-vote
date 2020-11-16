@@ -29,4 +29,5 @@ cat $CSV_FILE | $NODE cron/transform.js --compare ${JSON_FILE}.bk > $JSON_FILE 2
 
 # Upload to production
 scp $JSON_FILE electinth@real.elect.in.th:/home/electinth/www/con-vote/data
+scp $JSON_FILE.bk electinth@real.elect.in.th:/home/electinth/www/con-vote/data
 scp $CSV_FILE electinth@real.elect.in.th:/home/electinth/www/con-vote/data

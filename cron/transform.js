@@ -7,8 +7,12 @@ const compareJsonPath = process.argv[3]
 
 function loadCompareJson() {
   if (isCompare && compareJsonPath) {
-    const compareData = fs.readFileSync(compareJsonPath, { encoding: 'utf8' })
-    return JSON.parse(compareData)
+    try {
+      const compareData = fs.readFileSync(compareJsonPath, { encoding: 'utf8' })
+      return JSON.parse(compareData)
+    } catch (err) {
+      // no-op when error read file
+    }
   }
   return null
 }
