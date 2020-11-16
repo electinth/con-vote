@@ -126,13 +126,22 @@ export default {
     }
   },
   created() {
-    this.live_vote = live_vote_data
-    this.live_vote.map((i) => {
+    // Refresh data from source every 30 seconds
+    setInterval(() => {
+      this.$fetch()
+    }, 30 * 1000)
+  },
+
+  async fetch() {
+    // For development: Need to bypass CORS using extension
+    // @see https://chrome.google.com/webstore/detail/moesif-origin-cors-change/digfbfaphojjndkpccljibejjbppifbc/related
+    this.live_vote = await this.$axios.$get('https://elect.in.th/con-vote/data/live_vote.json')
+    this.live_vote.forEach((i) => {
       i.type = i.team + '/' + i.party
       i.fullname = `${i.title} ${i.name} ${i.lastname}`
     })
-    console.log('this.people', this.live_vote)
   },
+  fetchOnServer: false,
   methods: {
     setColor(data) {
       let color = ''
