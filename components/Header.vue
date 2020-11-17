@@ -1,7 +1,9 @@
 <template>
   <div class="header">
     <div class="logo-wrapper">
-      <img :src="elect_logo" alt="" />
+      <a href="https://elect.in.th/" target="_blank" rel="noopener noreferrer">
+        <img :src="elect_logo" alt="" />
+      </a>
     </div>
     <div class="share">
       <div
