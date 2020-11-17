@@ -51,7 +51,7 @@ export default {
           height: '40px',
         },
       ],
-      base_url: 'http://localhost:3000/con-vote/',
+      base_url: 'https://elect.in.th/con-vote/',
     }
   },
 }
