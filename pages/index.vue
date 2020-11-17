@@ -111,22 +111,28 @@
             </div>
           </td>
           <td>
-            <div
-              :class="{ circle: true, 'is-fresh': d.con_5_is_fresh }"
-              :style="{ background: setColor(d.con_5) }"
-            ></div>
+            <div class="circle-wrap">
+              <div
+                :class="{ circle: true, 'is-fresh': d.con_5_is_fresh }"
+                :style="{ background: setColor(d.con_5) }"
+              ></div>
+            </div>
           </td>
           <td>
-            <div
-              :class="{ circle: true, 'is-fresh': d.con_6_is_fresh }"
-              :style="{ background: setColor(d.con_6) }"
-            ></div>
+            <div class="circle-wrap">
+              <div
+                :class="{ circle: true, 'is-fresh': d.con_6_is_fresh }"
+                :style="{ background: setColor(d.con_6) }"
+              ></div>
+            </div>
           </td>
           <td>
-            <div
-              :class="{ circle: true, 'is-fresh': d.con_7_is_fresh }"
-              :style="{ background: setColor(d.con_7) }"
-            ></div>
+            <div class="circle-wrap">
+              <div
+                :class="{ circle: true, 'is-fresh': d.con_7_is_fresh }"
+                :style="{ background: setColor(d.con_7) }"
+              ></div>
+            </div>
           </td>
         </tr>
       </table>
