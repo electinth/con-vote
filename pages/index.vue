@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <h1>โค้งสุดท้าย 7 มติแก้รัฐธรรมนูญ</h1>
+    <h1><span v-if="config.test">(Test)</span>โค้งสุดท้าย 7 มติแก้รัฐธรรมนูญ</h1>
     <LiveBadge :config="config"></LiveBadge>
 
     <div class="filter-box-wrap">
@@ -115,8 +115,8 @@
 import _ from 'lodash'
 import { DateTime, Interval } from 'luxon'
 import LiveBadge from '@/components/LiveBadge'
-import config from '@/data/config.json'
-// import live_vote_json from '@/data/config.json'
+
+const CONFIG_URL = 'https://elect.in.th/con-vote/data/config.json'
 
 function isFresh(person, key) {
   const keyUpdatedAt = `${key}_updated_at`
@@ -135,7 +135,11 @@ export default {
   },
   data() {
     return {
-      config,
+      config: {
+        "test": false,
+        "live_vote_url": "https://elect.in.th/con-vote/data/live_vote.json",
+        "test_live_vote_url": "https://elect.in.th/con-vote/data/live_vote_dev.json"
+      },
       header: [
         { label: 'ชื่อ', key: 'name' },
         { label: 'ร่างรัฐบาล', key: 'con-1' },
@@ -238,40 +242,62 @@ export default {
       ]
     },
   },
-  created() {
-    // Refresh data from source every 15 seconds
+
+  async created() {
+    // Refresh data from source every 5 minutes
     setInterval(() => {
-      this.$fetch()
+      this.fetchConfig()
+    }, 5 * 60 * 1000)
+
+    // Refresh data from source every 15 seconds
+    this.fetchLive()
+    setInterval(() => {
+      this.fetchLive()
     }, 15 * 1000)
   },
 
-  async fetch() {
-    const is_first_fetch = this.live_vote.length === 0
+  async asyncData({ params, $axios, config_url }) {
     // For development: Need to bypass CORS using extension
     // @see https://chrome.google.com/webstore/detail/moesif-origin-cors-change/digfbfaphojjndkpccljibejjbppifbc/related
-    this.live_vote = await this.$axios.$get(
-      'https://elect.in.th/con-vote/data/live_vote.json'
-    )
-    const now = DateTime.local()
-    const keys = ['con_1', 'con_2', 'con_3', 'con_4', 'con_5', 'con_6', 'con_7']
-    this.live_vote.forEach((person) => {
-      person.type = person.team + '/' + person.party
-      person.fullname = `${person.title} ${person.name} ${person.lastname}`
-      // calculate "fresh vote" to show as blinking effect
-      keys.forEach((con) => {
-        person[`${con}_is_fresh`] = isFresh(person, con)
-      })
-    })
-
-    // Intiailize filter
-    if (is_first_fetch) {
-      this.setFilter()
-    }
-
-    this.filterPeople()
+    const config = await $axios.$get(CONFIG_URL)
+    return { config }
   },
-  fetchOnServer: false,
+
   methods: {
+    async fetchConfig() {
+      // For development: Need to bypass CORS using extension
+      // @see https://chrome.google.com/webstore/detail/moesif-origin-cors-change/digfbfaphojjndkpccljibejjbppifbc/related
+      this.config = await this.$axios.$get(CONFIG_URL)
+    },
+
+    async fetchLive() {
+      const is_first_fetch = this.live_vote.length === 0
+      const is_test = _.get(this.config, 'test') || false
+
+      // For development: Need to bypass CORS using extension
+      // @see https://chrome.google.com/webstore/detail/moesif-origin-cors-change/digfbfaphojjndkpccljibejjbppifbc/related
+      const live_data_url = _.get(this.config, is_test ? 'test_live_vote_url' : 'live_vote_url')
+      this.live_vote = await this.$axios.$get(live_data_url)
+      // this.live_vote = await this.$axios.$get('https://elect.in.th/con-vote/data/live_vote.json')
+      const now = DateTime.local()
+      const keys = ['con_1', 'con_2', 'con_3', 'con_4', 'con_5', 'con_6', 'con_7']
+      this.live_vote.forEach((person) => {
+        person.type = person.team + '/' + person.party
+        person.fullname = `${person.title} ${person.name} ${person.lastname}`
+        // calculate "fresh vote" to show as blinking effect
+        keys.forEach((con) => {
+          person[`${con}_is_fresh`] = isFresh(person, con)
+        })
+      })
+
+      // Intiailize filter
+      if (is_first_fetch) {
+        this.setFilter()
+      }
+
+      this.filterPeople()
+    },
+
     setFilter() {
       let group_party = _.groupBy(this.live_vote, 'party')
       for (const key in group_party) {
@@ -290,6 +316,7 @@ export default {
         return team === this.value
       })
     },
+
     filterPeople() {
       if (this.value === 'ทั้งหมด') {
         this.data = this.live_vote
