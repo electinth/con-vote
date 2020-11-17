@@ -598,6 +598,10 @@ export default {
     font-weight: 700;
     padding-top: 12px;
     padding-bottom: 12px;
+    background: white;
+    position: sticky;
+    top: 55px;
+    box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.4);
   }
   #vote-log-table {
     border-collapse: collapse;
