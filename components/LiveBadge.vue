@@ -1,10 +1,7 @@
 <template>
-  <div :class="{ 'live-container': true, 'is-live': is_live }">
-    <div
-      v-if="is_live"
-      class="circle"
-    ></div>
-    <span class="status">{{is_live ? 'Live' : 'No Live'}}</span>
+  <div :class="{ 'live-container': true, [`is-${statusClass}`]: true }">
+    <div class="circle"></div>
+    <span class="status">{{status}}</span>
   </div>
 </template>
 
@@ -14,19 +11,25 @@ import { DateTime } from 'luxon'
 
 export default {
   props: ['config'],
-  data() {
-    return {
-      is_live: true,
-    }
-  },
-  mounted() {
-    const { start_live, end_live } = this.config
-    if (start_live && end_live) {
-      const start = DateTime.fromISO(start_live)
-      const end = DateTime.fromISO(end_live)
-      const now = DateTime.local()
+  computed: {
+    status: function() {
+      const { start_live, end_live } = this.config
+      if (start_live && end_live) {
+        const start = DateTime.fromISO(start_live)
+        const end = DateTime.fromISO(end_live)
+        const now = DateTime.local()
 
-      this.is_live = now <= end && now >= start
+        if (now <= end && now >= start) {
+          return "Live"
+        } else if (now > end) {
+          return "Was Live"
+        }
+      }
+      return "Standby"
+    },
+
+    statusClass: function() {
+      return _.kebabCase(this.status)
     }
   }
 }
@@ -34,28 +37,42 @@ export default {
 
 <style lang="scss" scoped>
 .live-container {
+  position: fixed;
+  top: 10px;
   display: inline-flex;
   align-items: center;
   padding: 2px 10px;
   border-radius: 4px;
-  background: #666666;
-  color: white;
+  // background: #666666;
+  color: #666666;
 }
 .circle {
+  display: none;
   background: white;
   width: 10px;
   height: 10px;
   border-radius: 100%;
+  margin-right: 6px;
 }
 .status {
   font-size: 14px;
 }
 
+.is-standby {
+  display: none;
+}
+
 .is-live {
   background: red;
+  color: white;
   .circle {
+    display: block;
     animation: 2s blink ease-in-out infinite;
   }
+}
+.is-was-live {
+  background: #666666;
+  color: white;
 }
 
 @keyframes blink {

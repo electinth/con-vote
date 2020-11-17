@@ -1,0 +1,7 @@
+{
+  "test": true,
+  "live_vote_url": "https://elect.in.th/con-vote/data/live_vote.json",
+  "test_live_vote_url": "https://elect.in.th/con-vote/data/live_vote_dev.json",
+  "start_live": "2020-11-17T12:00:00+0700",
+  "end_live": "2020-11-17T22:00:00+0700"
+}
