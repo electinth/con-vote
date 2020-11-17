@@ -371,7 +371,6 @@ export default {
           3: group[3] || [],
           4: group[4] || [],
         }
-        console.log('index + 1', index + 1)
         let obj = {}
         let count = 0
         for (const key in group) {
@@ -398,9 +397,6 @@ export default {
     },
 
     calPercent(con, i) {
-      if (i === 1) {
-        console.log('con', con)
-      }
       const value = (con || {})[i] || 0
       const total = (con || {}).count || value
 
