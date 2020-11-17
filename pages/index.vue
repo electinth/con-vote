@@ -8,7 +8,7 @@
         <el-option
           v-for="item in options"
           :key="item.value"
-          :label="item.label"
+          :label="`${item.label} (${item.total})`"
           :value="item.value"
         >
         </el-option>
@@ -140,28 +140,7 @@ export default {
       live_vote: [],
       // filtered data derived from "live_data"
       data: [],
-      options: [
-        {
-          value: 'ทั้งหมด',
-          label: 'ทั้งหมด',
-        },
-        {
-          value: 'ส.ว.',
-          label: 'ส.ว. ทั้งหมด',
-        },
-        {
-          value: 'ส.ส.',
-          label: 'ส.ส. ทั้งหมด',
-        },
-        {
-          value: 'ฝ่ายค้าน',
-          label: 'ส.ส. ฝ่ายค้าน',
-        },
-        {
-          value: 'ฝ่ายรัฐบาล',
-          label: 'ส.ส. ฝ่ายรัฐบาล',
-        },
-      ],
+      options: [],
       value: 'ทั้งหมด',
       content: '',
       content_details: [
@@ -216,6 +195,38 @@ export default {
       ],
     }
   },
+  computed: {
+    default_options() {
+      return [
+        {
+          value: 'ทั้งหมด',
+          label: 'ทั้งหมด',
+          total: this.live_vote.length,
+        },
+        {
+          value: 'ส.ว.',
+          label: 'ส.ว. ทั้งหมด',
+          total: _.filter(this.live_vote, (i) => i.party === 'ส.ว.').length,
+        },
+        {
+          value: 'ส.ส.',
+          label: 'ส.ส. ทั้งหมด',
+          total: _.filter(this.live_vote, (i) => i.party !== 'ส.ว.').length,
+        },
+        {
+          value: 'ฝ่ายค้าน',
+          label: 'ส.ส. ฝ่ายค้าน',
+          total: _.filter(this.live_vote, (i) => i.team === 'ฝ่ายค้าน').length,
+        },
+        {
+          value: 'ฝ่ายรัฐบาล',
+          label: 'ส.ส. ฝ่ายรัฐบาล',
+          total: _.filter(this.live_vote, (i) => i.team === 'ฝ่ายรัฐบาล')
+            .length,
+        },
+      ]
+    },
+  },
   created() {
     // Refresh data from source every 15 seconds
     setInterval(() => {
@@ -257,10 +268,16 @@ export default {
           this.options.push({
             value: key,
             label: `พรรค ${key}`,
+            total: group_party[key].length,
           })
         }
       }
-      this.options = _.sortBy(this.options, 'id')
+      this.options = [...this.default_options, ...this.options]
+    },
+    filterList(team) {
+      return this.live_vote.filter((d) => {
+        return team === this.value
+      })
     },
     filterPeople() {
       if (this.value === 'ทั้งหมด') {
@@ -303,10 +320,8 @@ export default {
       return color
     },
     viewDetail(key) {
-      console.log('view', key)
       const found = this.content_details.find((element) => element.key === key)
       if (found !== undefined) {
-        console.log('found', found.content)
         return found.content
       }
     },
