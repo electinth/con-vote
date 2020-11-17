@@ -8,6 +8,10 @@ export default {
     base: '/con-vote',
   },
 
+  router: {
+    base: '/con-vote'
+  },
+
   // Global page headers (https://go.nuxtjs.dev/config-head)
   head: {
     title: 'con-vote',

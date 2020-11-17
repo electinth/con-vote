@@ -1,7 +1,11 @@
 <template>
   <div class="container">
     <Header />
-    <h1 class="title-header">โค้งสุดท้าย 7 มติแก้รัฐธรรมนูญ</h1>
+
+    <h1 class="title-header">
+      <span v-if="config.test">(Test)</span>โหวตผ่าน-ไม่ผ่าน 7 มติแก้รัฐธรรมนูญ
+    </h1>
+
     <LiveBadge :config="config"></LiveBadge>
 
     <div class="filter-box-wrap">
@@ -9,7 +13,7 @@
         <el-option
           v-for="item in options"
           :key="item.value"
-          :label="item.label"
+          :label="`${item.label} (${item.total})`"
           :value="item.value"
         >
         </el-option>
@@ -47,6 +51,16 @@
             <p v-html="viewDetail(h.key)"></p>
             <div slot="reference">
               {{ h.label }}
+              <div class="legend-wrap">
+                <template v-if="index !== 0">
+                  <div v-for="i in 4" :key="i" class="legend">
+                    <div class="circle"></div>
+                    <p class="text">
+                      {{ (con_votes[index - 1] || {})[i] || 0 }}
+                    </p>
+                  </div>
+                </template>
+              </div>
             </div>
           </el-popover>
         </th>
@@ -107,8 +121,7 @@ import _ from 'lodash'
 import { DateTime, Interval } from 'luxon'
 import LiveBadge from '@/components/LiveBadge'
 import Header from '@/components/Header'
-import config from '@/data/config.json'
-// import live_vote_json from '@/data/config.json'
+const CONFIG_URL = 'https://elect.in.th/con-vote/data/config.json'
 
 function isFresh(person, key) {
   const keyUpdatedAt = `${key}_updated_at`
@@ -127,11 +140,16 @@ export default {
   },
   data() {
     return {
-      config,
+      config: {
+        test: false,
+        live_vote_url: 'https://elect.in.th/con-vote/data/live_vote.json',
+        test_live_vote_url:
+          'https://elect.in.th/con-vote/data/live_vote_dev.json',
+      },
       header: [
         { label: 'ชื่อ', key: 'name' },
-        { label: 'ร่างรัฐบาล', key: 'con-1' },
         { label: 'ร่างเพื่อไทย 1', key: 'con-2' },
+        { label: 'ร่างรัฐบาล', key: 'con-1' },
         { label: 'ร่างเพื่อไทย 2', key: 'con-3' },
         { label: 'ร่างเพื่อไทย 3', key: 'con-4' },
         { label: 'ร่างเพื่อไทย 4', key: 'con-5' },
@@ -142,28 +160,7 @@ export default {
       live_vote: [],
       // filtered data derived from "live_data"
       data: [],
-      options: [
-        {
-          value: 'ทั้งหมด',
-          label: 'ทั้งหมด',
-        },
-        {
-          value: 'ส.ว.',
-          label: 'ส.ว. ทั้งหมด',
-        },
-        {
-          value: 'ส.ส.',
-          label: 'ส.ส. ทั้งหมด',
-        },
-        {
-          value: 'ฝ่ายค้าน',
-          label: 'ส.ส. ฝ่ายค้าน',
-        },
-        {
-          value: 'ฝ่ายรัฐบาล',
-          label: 'ส.ส. ฝ่ายรัฐบาล',
-        },
-      ],
+      options: [],
       value: 'ทั้งหมด',
       content: '',
       content_details: [
@@ -216,42 +213,108 @@ export default {
               ๐ ให้จัดทำรัฐธรมนูญใหม่ โดย สสร. ที่มาจากการเลือกตั้งจำนวน 200 "`,
         },
       ],
+      con_votes: [],
     }
   },
-  created() {
-    // Refresh data from source every 15 seconds
+  computed: {
+    default_options() {
+      return [
+        {
+          value: 'ทั้งหมด',
+          label: 'ทั้งหมด',
+          total: this.live_vote.length,
+        },
+        {
+          value: 'ส.ว.',
+          label: 'ส.ว. ทั้งหมด',
+          total: _.filter(this.live_vote, (i) => i.party === 'ส.ว.').length,
+        },
+        {
+          value: 'ส.ส.',
+          label: 'ส.ส. ทั้งหมด',
+          total: _.filter(this.live_vote, (i) => i.party !== 'ส.ว.').length,
+        },
+        {
+          value: 'ฝ่ายค้าน',
+          label: 'ส.ส. ฝ่ายค้าน',
+          total: _.filter(this.live_vote, (i) => i.team === 'ฝ่ายค้าน').length,
+        },
+        {
+          value: 'ฝ่ายรัฐบาล',
+          label: 'ส.ส. ฝ่ายรัฐบาล',
+          total: _.filter(this.live_vote, (i) => i.team === 'ฝ่ายรัฐบาล')
+            .length,
+        },
+      ]
+    },
+  },
+
+  async created() {
+    // Refresh data from source every 5 minutes
     setInterval(() => {
-      this.$fetch()
+      this.fetchConfig()
+    }, 5 * 60 * 1000)
+
+    // Refresh data from source every 15 seconds
+    this.fetchLive()
+    setInterval(() => {
+      this.fetchLive()
     }, 15 * 1000)
   },
 
-  async fetch() {
-    const is_first_fetch = this.live_vote.length === 0
+  async asyncData({ params, $axios, config_url }) {
     // For development: Need to bypass CORS using extension
     // @see https://chrome.google.com/webstore/detail/moesif-origin-cors-change/digfbfaphojjndkpccljibejjbppifbc/related
-    this.live_vote = await this.$axios.$get(
-      'https://elect.in.th/con-vote/data/live_vote.json'
-    )
-    const now = DateTime.local()
-    const keys = ['con_1', 'con_2', 'con_3', 'con_4', 'con_5', 'con_6', 'con_7']
-    this.live_vote.forEach((person) => {
-      person.type = person.team + '/' + person.party
-      person.fullname = `${person.title} ${person.name} ${person.lastname}`
-      // calculate "fresh vote" to show as blinking effect
-      keys.forEach((con) => {
-        person[`${con}_is_fresh`] = isFresh(person, con)
-      })
-    })
-
-    // Intiailize filter
-    if (is_first_fetch) {
-      this.setFilter()
-    }
-
-    this.filterPeople()
+    const config = await $axios.$get(CONFIG_URL)
+    return { config }
   },
-  fetchOnServer: false,
+
   methods: {
+    async fetchConfig() {
+      // For development: Need to bypass CORS using extension
+      // @see https://chrome.google.com/webstore/detail/moesif-origin-cors-change/digfbfaphojjndkpccljibejjbppifbc/related
+      this.config = await this.$axios.$get(CONFIG_URL)
+    },
+
+    async fetchLive() {
+      const is_first_fetch = this.live_vote.length === 0
+      const is_test = _.get(this.config, 'test') || false
+
+      // For development: Need to bypass CORS using extension
+      // @see https://chrome.google.com/webstore/detail/moesif-origin-cors-change/digfbfaphojjndkpccljibejjbppifbc/related
+      const live_data_url = _.get(
+        this.config,
+        is_test ? 'test_live_vote_url' : 'live_vote_url'
+      )
+      this.live_vote = await this.$axios.$get(live_data_url)
+      // this.live_vote = await this.$axios.$get('https://elect.in.th/con-vote/data/live_vote.json')
+      const now = DateTime.local()
+      const keys = [
+        'con_1',
+        'con_2',
+        'con_3',
+        'con_4',
+        'con_5',
+        'con_6',
+        'con_7',
+      ]
+      this.live_vote.forEach((person) => {
+        person.type = person.team + '/' + person.party
+        person.fullname = `${person.title} ${person.name} ${person.lastname}`
+        // calculate "fresh vote" to show as blinking effect
+        keys.forEach((con) => {
+          person[`${con}_is_fresh`] = isFresh(person, con)
+        })
+      })
+
+      // Intiailize filter
+      if (is_first_fetch) {
+        this.setFilter()
+      }
+
+      this.filterPeople()
+    },
+
     setFilter() {
       let group_party = _.groupBy(this.live_vote, 'party')
       for (const key in group_party) {
@@ -259,11 +322,18 @@ export default {
           this.options.push({
             value: key,
             label: `พรรค ${key}`,
+            total: group_party[key].length,
           })
         }
       }
-      this.options = _.sortBy(this.options, 'id')
+      this.options = [...this.default_options, ...this.options]
     },
+    filterList(team) {
+      return this.live_vote.filter((d) => {
+        return team === this.value
+      })
+    },
+
     filterPeople() {
       if (this.value === 'ทั้งหมด') {
         this.data = this.live_vote
@@ -288,6 +358,20 @@ export default {
           return d.party === this.value
         })
       }
+
+      const cons = Array.from(Array(7).keys())
+      this.con_votes = _.map(cons, (c, index) => {
+        let group = _.groupBy(this.data, `con_${index + 1}`)
+        group = _.omit(group, '')
+        let obj = {}
+        let count = 0
+        for (const key in group) {
+          obj[key] = group[key].length
+          count = count + group[key].length
+          obj['count'] = count
+        }
+        return obj
+      })
     },
     setColor(data) {
       let color = ''
@@ -298,17 +382,13 @@ export default {
       } else if (data === '3') {
         color = '#2D3480'
       } else if (data === '4') {
-        color = '#7B90D1'
-      } else if (data === '5') {
         color = '#E3E3E3'
       }
       return color
     },
     viewDetail(key) {
-      console.log('view', key)
       const found = this.content_details.find((element) => element.key === key)
       if (found !== undefined) {
-        console.log('found', found.content)
         return found.content
       }
     },
@@ -418,17 +498,31 @@ export default {
     cursor: pointer;
     width: 150px;
     max-width: 150px;
+    .legend-wrap {
+      padding-left: 0;
+      .legend {
+        display: flex;
+        align-items: center;
+        margin: 0 4px;
+        .circle {
+          display: flex;
+          align-items: center;
+          width: 5px;
+          height: 5px;
+          margin-right: 3px;
+          border-radius: 50%;
+        }
+        .text {
+          font-size: 1rem;
+        }
+      }
+    }
   }
 
   .header:nth-child(1),
   .full-name {
-    width: 310px;
-    max-width: 310px;
-    border-left: 1px solid white !important;
-  }
-  .full-name,
-  td {
-    border-bottom: 1px solid white !important;
+    min-width: 300px;
+    max-width: 300px;
   }
 
   #vote-log-table th,
