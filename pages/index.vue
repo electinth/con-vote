@@ -51,7 +51,7 @@
         </th>
         <tr v-for="d in data" :key="'section' + d.id" class="grid-row">
           <td>
-            {{ d.fullname }}
+            <a :href="d.url" target="_blank">{{ d.fullname }}</a>
           </td>
           <td>
             <div
@@ -273,6 +273,7 @@ export default {
       this.live_vote.forEach((person) => {
         person.type = person.team + '/' + person.party
         person.fullname = `${person.title} ${person.name} ${person.lastname}`
+        person.url = `https://theyworkforus.elect.in.th/people/${person.name}-${person.lastname}`
         // calculate "fresh vote" to show as blinking effect
         keys.forEach((con) => {
           person[`${con}_is_fresh`] = isFresh(person, con)
@@ -455,26 +456,43 @@ export default {
   .header {
     cursor: pointer;
   }
-  #vote-log-table th,
-  #vote-log-table td {
-    font-size: 1.6rem;
-    color: #000;
-    border: 1px solid $grey-200;
-    padding: 8px 15px;
-    text-align: left;
-  }
-  #vote-log-table th {
-    font-weight: 700;
-    background-color: $grey-100;
-    padding-top: 12px;
-    padding-bottom: 12px;
-  }
   #vote-log-table {
     border-collapse: collapse;
     width: 100%;
-  }
-  #vote-log-table tr:hover {
-    background-color: $grey-50;
+
+    th,
+    td {
+      font-size: 1.6rem;
+      color: #000;
+      border: 1px solid $grey-200;
+      padding: 8px 15px;
+      text-align: left;
+    }
+
+    th {
+      font-weight: 700;
+      background-color: $grey-100;
+      padding-top: 12px;
+      padding-bottom: 12px;
+    }
+
+    tr:hover {
+      background-color: $grey-50;
+    }
+
+    tr {
+      td {
+        a {
+          color: #000;
+          text-decoration: none;
+
+          &:hover,
+          &:active {
+            text-decoration: underline;
+          }
+        }
+      }
+    }
   }
 }
 

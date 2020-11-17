@@ -17,8 +17,8 @@ On page load, it'll read config and keep polling vote data every a few minutes.
 | File | URL |
 |--|--|
 | Config | https://elect.in.th/con-vote/data/config.json |
-| Live Data (Test) | https://elect.in.th/con-vote/data/live_data.json |
-| Live Data (Production) | https://elect.in.th/con-vote/data/live_data_dev.json |
+| Live Data (Test) | https://elect.in.th/con-vote/data/live_vote_dev.json |
+| Live Data (Production) | https://elect.in.th/con-vote/data/live_vote.json |
 
 ## Config
 
