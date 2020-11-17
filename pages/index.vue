@@ -1,6 +1,11 @@
 <template>
   <div class="container">
-    <h1><span v-if="config.test">(Test)</span>โค้งสุดท้าย 7 มติแก้รัฐธรรมนูญ</h1>
+    <Header />
+
+    <h1 class="title-header">
+      <span v-if="config.test">(Test)</span>โหวตผ่าน-ไม่ผ่าน 7 มติแก้รัฐธรรมนูญ
+    </h1>
+
     <LiveBadge :config="config"></LiveBadge>
 
     <div class="filter-box-wrap">
@@ -38,19 +43,39 @@
       <table id="vote-log-table">
         <th v-for="(h, index) in header" :key="index" class="header">
           <el-popover
-            placement="top-start"
-            width="200"
+            v-if="index !== 0"
+            placement="bottom"
+            :width="index == 7 ? 500 : 200"
             trigger="hover"
             class="detail-box"
           >
             <p v-html="viewDetail(h.key)"></p>
             <div slot="reference">
               {{ h.label }}
+              <div class="chart-warp">
+                <div
+                  v-for="i in 4"
+                  :key="i"
+                  class="chart"
+                  :style="{ width: calPercent(con_votes[index - 1], i) }"
+                ></div>
+              </div>
+              <div class="legend-wrap">
+                <div v-for="i in 4" :key="i" class="legend">
+                  <div class="circle"></div>
+                  <p class="text">
+                    {{ (con_votes[index - 1] || {})[i] || 0 }}
+                  </p>
+                </div>
+              </div>
             </div>
           </el-popover>
+          <template v-else>
+            {{ h.label }}
+          </template>
         </th>
-        <tr v-for="d in data" :key="'section' + d.id" class="grid-row">
-          <td>
+        <tr v-for="d in table_data" :key="'section' + d.id" class="grid-row">
+          <td class="full-name">
             <a :href="d.url" target="_blank">{{ d.fullname }}</a>
           </td>
           <td>
@@ -105,7 +130,7 @@
 import _ from 'lodash'
 import { DateTime, Interval } from 'luxon'
 import LiveBadge from '@/components/LiveBadge'
-
+import Header from '@/components/Header'
 const CONFIG_URL = 'https://elect.in.th/con-vote/data/config.json'
 
 function isFresh(person, key) {
@@ -121,19 +146,20 @@ function isFresh(person, key) {
 
 export default {
   components: {
-    LiveBadge,
+    Header,
   },
   data() {
     return {
       config: {
-        "test": false,
-        "live_vote_url": "https://elect.in.th/con-vote/data/live_vote.json",
-        "test_live_vote_url": "https://elect.in.th/con-vote/data/live_vote_dev.json"
+        test: false,
+        live_vote_url: 'https://elect.in.th/con-vote/data/live_vote.json',
+        test_live_vote_url:
+          'https://elect.in.th/con-vote/data/live_vote_dev.json',
       },
       header: [
         { label: 'ชื่อ', key: 'name' },
-        { label: 'ร่างรัฐบาล', key: 'con-1' },
         { label: 'ร่างเพื่อไทย 1', key: 'con-2' },
+        { label: 'ร่างรัฐบาล', key: 'con-1' },
         { label: 'ร่างเพื่อไทย 2', key: 'con-3' },
         { label: 'ร่างเพื่อไทย 3', key: 'con-4' },
         { label: 'ร่างเพื่อไทย 4', key: 'con-5' },
@@ -152,51 +178,52 @@ export default {
           key: 'con-1',
           title: 'ร่างรัฐบาล',
           content:
-            'ตั้งสภาร่างรัฐธรรมนูญ จำนวน 200 คน มาจากการเลือกตั้ง 150 คน (โดยใช้จังหวัดเป็นเขตเลือกตั้ง) และสรรหาอีก 50 คน / ห้ามแก้ไขหมวด 1 และ 2',
+            'ตั้งสภาร่างรัฐธรรมนูญ<br/>จำนวน 200 คน<br/>มาจากการเลือกตั้ง 150 คน<br/>(โดยใช้จังหวัดเป็นเขตเลือกตั้ง)<br/>และสรรหาอีก 50 คน / ห้าม<br/>แก้ไขหมวด 1 และ 2',
         },
         {
           key: 'con-2',
           title: 'ร่างเพื่อไทย 1',
           content:
-            'ตั้งสภาร่างรัฐธรรมนูญ จำนวน 200 คน มาจากการเลือกตั้ง 150 คน (โดยใช้จังหวัดเป็นเขตเลือกตั้ง) และสรรหาอีก 50 คน / ห้ามแก้ไขหมวด 1 และ 2',
+            'ตั้งสภาร่างรัฐธรรมนูญ<br/>จำนวน 200 คน<br/>มาจากการเลือกตั้ง 150 คน<br/>(โดยใช้จังหวัดเป็นเขตเลือกตั้ง)<br/>และสรรหาอีก 50 คน / ห้าม<br/>แก้ไขหมวด 1 และ 2',
         },
         {
           key: 'con-3',
           title: 'ร่างเพื่อไทย 2',
           content:
-            'ตั้งสภาร่างรัฐธรรมนูญจำนวน 200 คน มาจากการเลือกตั้งทั้งหมด (โดยใช้จังหวัดเป็นเขตเลือกตั้ง) / ห้ามแก้ไขหมวด 1 และ 2',
+            'ตั้งสภาร่างรัฐธรรมนูญ<br/>จำนวน 200 คน<br/>มาจากการเลือกตั้งทั้งหมด<br/>(โดยใช้จังหวัดเป็นเขตเลือกตั้ง) / ห้ามแก้ไขหมวด 1 และ 2',
         },
         {
           key: 'con-4',
           title: 'ร่างเพื่อไทย 3',
           content:
-            'ให้นายกรัฐมนตรีมาจากบัญชีรายชื่อที่พรรคการเมืองเสนอ หรือ ส.ส.บัญชีรายชื่อ หรือ ส.ส. จากพรรคที่มี ส.ส.ไม่น้อยกว่าร้อยละ 5 ',
+            'ให้นายกรัฐมนตรีมาจาก<br/>บัญชีรายชื่อที่พรรคการเมือง<br/>เสนอหรือ ส.ส.บัญชีรายชื่อ<br/>หรือ ส.ส. จากพรรคที่มี ส.ส.<br/>ไม่น้อยกว่าร้อยละ 5 ',
         },
         {
           key: 'con-5',
           title: 'ร่างเพื่อไทย 4',
           content:
-            'ยกเลิกบทบัญญัติที่ให้การรับรองประกาศ-คำสั่งคสช. และคำสั่งหัวหน้าคสช. รวมถึงการกระทำที่เกี่ยวข้องให้ชอบด้วยกฎหมาย',
+            'ยกเลิกบทบัญญัติที่ให้การ<br/>รับรองประกาศ-คำสั่งคสช.<br/>และคำสั่งหัวหน้าคสช. รวมถึง<br/>การกระทำที่เกี่ยวข้องให้ชอบ<br/>ด้วยกฎหมาย',
         },
         {
           key: 'con-6',
           title: 'ร่างเพื่อไทย 5',
           content:
-            'ให้ใช้ระบบเลือกตั้งแบบมีบัตรเลือกตั้งสองใบ เลือกทั้งคน-เลือกทั้งพรรค',
+            'ให้ใช้ระบบเลือกตั้งแบบมีบัตร<br/>เลือกตั้งสองใบ เลือกทั้ง<br/>คน-เลือกทั้งพรรค',
         },
         {
           key: 'con-7',
           title: 'ร่างประชาชน',
-          content: `"๐ ยกเลิกช่องทางนายกฯ คนนอก และให้นายกฯ ต้องเป็น ส.ส. </br>
+          content: `"๐ ยกเลิกช่องทางนายกฯคนนอก และให้นายกฯ ต้องเป็น ส.ส. </br>
               ๐ ยกเลิกที่มาและอำนาจ ส.ว.ชุดพิเศษของคสช. และให้ ส.ว. มาจากการเลือกตั้ง </br>
               ๐ ยกเลิกแผนยุทธศาสตร์ชาติและแผนปฏิรูปที่คสช. เขียน </br>
-              ๐ ยกเลิกบทบัญญัติที่ให้การรับรองประกาศ-คำสั่งคสช. และคำสั่งหัวหน้าคสช. รวมถึงการกระทำที่เกี่ยวข้องให้ชอบด้วยกฎหมาย </br>
+              ๐ ยกเลิกบทบัญญัติที่ให้การรับรองประกาศ-คำสั่งคสช. และคำสั่งหัวหน้าคสช.<br/>&emsp;รวมถึงการกระทำที่เกี่ยวข้องให้ชอบด้วยกฎหมาย </br>
               ๐ ยกเลิกที่มาของผู้บริหารท้องถิ่นรูปแบบพิเศษที่ไม่ได้มาจากการเลือกตั้ง </br>
               ๐ ให้ ""เซ็ตซีโร่"" องค์กรอิสระและศาลรัฐธรรมนูญ </br>
               ๐ ให้การแก้ไขรัฐธรรมนูญใช้เพียงเสียงเกินกึ่งหนึ่งของสองสภา </br>
               ๐ ให้จัดทำรัฐธรมนูญใหม่ โดย สสร. ที่มาจากการเลือกตั้งจำนวน 200 "`,
         },
       ],
+      con_votes: [],
     }
   },
   computed: {
@@ -229,6 +256,26 @@ export default {
             .length,
         },
       ]
+    },
+    table_data() {
+      if (this.value === 'ส.ว.') {
+        return this.live_vote.filter((d) => {
+          return d.party === this.value
+        })
+      } else if (this.value === 'ส.ส.') {
+        return this.live_vote.filter((d) => {
+          return d.party !== 'ส.ว.'
+        })
+      } else if (this.value === 'ฝ่ายค้าน') {
+        return this.live_vote.filter((d) => {
+          return d.team === this.value
+        })
+      } else if (this.value === 'ฝ่ายรัฐบาล') {
+        return this.live_vote.filter((d) => {
+          return d.team === this.value
+        })
+      }
+      return this.live_vote
     },
   },
 
@@ -265,11 +312,22 @@ export default {
 
       // For development: Need to bypass CORS using extension
       // @see https://chrome.google.com/webstore/detail/moesif-origin-cors-change/digfbfaphojjndkpccljibejjbppifbc/related
-      const live_data_url = _.get(this.config, is_test ? 'test_live_vote_url' : 'live_vote_url')
+      const live_data_url = _.get(
+        this.config,
+        is_test ? 'test_live_vote_url' : 'live_vote_url'
+      )
       this.live_vote = await this.$axios.$get(live_data_url)
       // this.live_vote = await this.$axios.$get('https://elect.in.th/con-vote/data/live_vote.json')
       const now = DateTime.local()
-      const keys = ['con_1', 'con_2', 'con_3', 'con_4', 'con_5', 'con_6', 'con_7']
+      const keys = [
+        'con_1',
+        'con_2',
+        'con_3',
+        'con_4',
+        'con_5',
+        'con_6',
+        'con_7',
+      ]
       this.live_vote.forEach((person) => {
         person.type = person.team + '/' + person.party
         person.fullname = `${person.title} ${person.name} ${person.lastname}`
@@ -285,7 +343,7 @@ export default {
         this.setFilter()
       }
 
-      this.filterPeople()
+      this.setConVoteTotal()
     },
 
     setFilter() {
@@ -301,37 +359,31 @@ export default {
       }
       this.options = [...this.default_options, ...this.options]
     },
-    filterList(team) {
-      return this.live_vote.filter((d) => {
-        return team === this.value
+
+    setConVoteTotal() {
+      const cons = Array.from(Array(7).keys())
+
+      this.con_votes = _.map(cons, (c, index) => {
+        let group = _.groupBy(this.table_data, `con_${index + 1}`)
+        group = _.omit(group, ['', '#REF!'])
+        group = {
+          1: group[1] || [],
+          2: group[2] || [],
+          3: group[3] || [],
+          4: group[4] || [],
+        }
+        console.log('index + 1', index + 1)
+        let obj = {}
+        let count = 0
+        for (const key in group) {
+          obj[key] = group[key].length
+          count = count + group[key].length
+          obj['count'] = count
+        }
+        return obj
       })
     },
 
-    filterPeople() {
-      if (this.value === 'ทั้งหมด') {
-        this.data = this.live_vote
-      } else if (this.value === 'ส.ว.') {
-        this.data = this.live_vote.filter((d) => {
-          return d.party === this.value
-        })
-      } else if (this.value === 'ส.ส.') {
-        this.data = this.live_vote.filter((d) => {
-          return d.party !== 'ส.ว.'
-        })
-      } else if (this.value === 'ฝ่ายค้าน') {
-        this.data = this.live_vote.filter((d) => {
-          return d.team === this.value
-        })
-      } else if (this.value === 'ฝ่ายรัฐบาล') {
-        this.data = this.live_vote.filter((d) => {
-          return d.team === this.value
-        })
-      } else {
-        this.data = this.live_vote.filter((d) => {
-          return d.party === this.value
-        })
-      }
-    },
     setColor(data) {
       let color = ''
       if (data === '1') {
@@ -341,12 +393,22 @@ export default {
       } else if (data === '3') {
         color = '#2D3480'
       } else if (data === '4') {
-        color = '#7B90D1'
-      } else if (data === '5') {
         color = '#E3E3E3'
       }
       return color
     },
+
+    calPercent(con, i) {
+      if (i === 1) {
+        console.log('con', con)
+      }
+      const value = (con || {})[i] || 0
+      const total = (con || {}).count || value
+
+      const result = (value / total) * 100
+      return result + '%'
+    },
+
     viewDetail(key) {
       const found = this.content_details.find((element) => element.key === key)
       if (found !== undefined) {
@@ -356,7 +418,7 @@ export default {
   },
   watch: {
     value() {
-      this.filterPeople()
+      this.setConVoteTotal()
     },
   },
 }
@@ -367,7 +429,10 @@ export default {
   margin: 0 auto;
   min-height: 100vh;
   text-align: center;
-  padding: 30px 10%;
+  padding: 30px 5%;
+}
+.title-header {
+  margin-top: 60px;
 }
 .filter-box-wrap {
   display: flex;
@@ -433,7 +498,7 @@ export default {
   width: 250px;
 }
 ::v-deep.el-select .el-input__inner {
-  border-color: $grey-200;
+  border-color: black;
   font-family: 'NotoSansThai' !important;
   font-size: 1.8rem;
   font-weight: 700;
@@ -442,7 +507,6 @@ export default {
 .el-select-dropdown__item.hover {
   background: rgba($color: $yellow-100, $alpha: 0.5);
 }
-
 .wrapper {
   margin: 40px 0;
   .circle {
@@ -455,7 +519,55 @@ export default {
   }
   .header {
     cursor: pointer;
+    width: 150px;
+    max-width: 150px;
+    .chart-warp {
+      width: 100%;
+      display: flex;
+      .chart {
+        height: 3px;
+        width: 100%;
+      }
+      .chart:nth-child(1) {
+        background: $green-100;
+      }
+      .chart:nth-child(2) {
+        background: $red-100;
+      }
+      .chart:nth-child(3) {
+        background: $blue-100;
+      }
+      .chart:nth-child(4) {
+        background: $grey-100;
+      }
+    }
+    .legend-wrap {
+      padding-left: 0;
+      .legend {
+        display: flex;
+        align-items: center;
+        margin: 0 4px;
+        .circle {
+          display: flex;
+          align-items: center;
+          width: 5px;
+          height: 5px;
+          margin-right: 3px;
+          border-radius: 50%;
+        }
+        .text {
+          font-size: 1rem;
+        }
+      }
+    }
   }
+
+  .header:nth-child(1),
+  .full-name {
+    min-width: 300px;
+    max-width: 300px;
+  }
+
   #vote-log-table {
     border-collapse: collapse;
     width: 100%;
