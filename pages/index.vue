@@ -272,7 +272,9 @@ export default {
       ]
     },
     table_data() {
-      if (this.value === 'ส.ว.') {
+      if (this.value === 'ทั้งหมด') {
+        return this.live_vote
+      } else if (this.value === 'ส.ว.') {
         return this.live_vote.filter((d) => {
           return d.party === this.value
         })
@@ -288,8 +290,11 @@ export default {
         return this.live_vote.filter((d) => {
           return d.team === this.value
         })
+      } else {
+        return this.live_vote.filter((d) => {
+          return d.party === this.value
+        })
       }
-      return this.live_vote
     },
   },
 
