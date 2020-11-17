@@ -36,8 +36,18 @@
 
     <div class="wrapper">
       <table id="vote-log-table">
-        <th v-for="(h, index) in header" :key="index">
-          {{ h }}
+        <th v-for="(h, index) in header" :key="index" class="header">
+          <el-popover
+            placement="top-start"
+            width="200"
+            trigger="hover"
+            class="detail-box"
+          >
+            <p v-html="viewDetail(h.key)"></p>
+            <div slot="reference">
+              {{ h.label }}
+            </div>
+          </el-popover>
         </th>
         <tr v-for="d in data" :key="'section' + d.id" class="grid-row">
           <td>
@@ -96,6 +106,7 @@ import _ from 'lodash'
 import { DateTime, Interval } from 'luxon'
 import LiveBadge from '@/components/LiveBadge'
 import config from '@/data/config.json'
+// import live_vote_json from '@/data/config.json'
 
 function isFresh(person, key) {
   const keyUpdatedAt = `${key}_updated_at`
@@ -110,20 +121,20 @@ function isFresh(person, key) {
 
 export default {
   components: {
-    LiveBadge
+    LiveBadge,
   },
   data() {
     return {
       config,
       header: [
-        'ชื่อ',
-        'ร่างรัฐบาล',
-        'ร่างเพื่อไทย 1',
-        'ร่างเพื่อไทย 2',
-        'ร่างเพื่อไทย 3',
-        'ร่างเพื่อไทย 4',
-        'ร่างเพื่อไทย 5',
-        'ร่างประชาชน',
+        { label: 'ชื่อ', key: 'name' },
+        { label: 'ร่างรัฐบาล', key: 'con-1' },
+        { label: 'ร่างเพื่อไทย 1', key: 'con-2' },
+        { label: 'ร่างเพื่อไทย 2', key: 'con-3' },
+        { label: 'ร่างเพื่อไทย 3', key: 'con-4' },
+        { label: 'ร่างเพื่อไทย 4', key: 'con-5' },
+        { label: 'ร่างเพื่อไทย 5', key: 'con-6' },
+        { label: 'ร่างประชาชน', key: 'con-7' },
       ],
       // master data
       live_vote: [],
@@ -152,6 +163,57 @@ export default {
         },
       ],
       value: 'ทั้งหมด',
+      content: '',
+      content_details: [
+        {
+          key: 'con-1',
+          title: 'ร่างรัฐบาล',
+          content:
+            'ตั้งสภาร่างรัฐธรรมนูญ จำนวน 200 คน มาจากการเลือกตั้ง 150 คน (โดยใช้จังหวัดเป็นเขตเลือกตั้ง) และสรรหาอีก 50 คน / ห้ามแก้ไขหมวด 1 และ 2',
+        },
+        {
+          key: 'con-2',
+          title: 'ร่างเพื่อไทย 1',
+          content:
+            'ตั้งสภาร่างรัฐธรรมนูญ จำนวน 200 คน มาจากการเลือกตั้ง 150 คน (โดยใช้จังหวัดเป็นเขตเลือกตั้ง) และสรรหาอีก 50 คน / ห้ามแก้ไขหมวด 1 และ 2',
+        },
+        {
+          key: 'con-3',
+          title: 'ร่างเพื่อไทย 2',
+          content:
+            'ตั้งสภาร่างรัฐธรรมนูญจำนวน 200 คน มาจากการเลือกตั้งทั้งหมด (โดยใช้จังหวัดเป็นเขตเลือกตั้ง) / ห้ามแก้ไขหมวด 1 และ 2',
+        },
+        {
+          key: 'con-4',
+          title: 'ร่างเพื่อไทย 3',
+          content:
+            'ให้นายกรัฐมนตรีมาจากบัญชีรายชื่อที่พรรคการเมืองเสนอ หรือ ส.ส.บัญชีรายชื่อ หรือ ส.ส. จากพรรคที่มี ส.ส.ไม่น้อยกว่าร้อยละ 5 ',
+        },
+        {
+          key: 'con-5',
+          title: 'ร่างเพื่อไทย 4',
+          content:
+            'ยกเลิกบทบัญญัติที่ให้การรับรองประกาศ-คำสั่งคสช. และคำสั่งหัวหน้าคสช. รวมถึงการกระทำที่เกี่ยวข้องให้ชอบด้วยกฎหมาย',
+        },
+        {
+          key: 'con-6',
+          title: 'ร่างเพื่อไทย 5',
+          content:
+            'ให้ใช้ระบบเลือกตั้งแบบมีบัตรเลือกตั้งสองใบ เลือกทั้งคน-เลือกทั้งพรรค',
+        },
+        {
+          key: 'con-7',
+          title: 'ร่างประชาชน',
+          content: `"๐ ยกเลิกช่องทางนายกฯ คนนอก และให้นายกฯ ต้องเป็น ส.ส. </br>
+              ๐ ยกเลิกที่มาและอำนาจ ส.ว.ชุดพิเศษของคสช. และให้ ส.ว. มาจากการเลือกตั้ง </br>
+              ๐ ยกเลิกแผนยุทธศาสตร์ชาติและแผนปฏิรูปที่คสช. เขียน </br>
+              ๐ ยกเลิกบทบัญญัติที่ให้การรับรองประกาศ-คำสั่งคสช. และคำสั่งหัวหน้าคสช. รวมถึงการกระทำที่เกี่ยวข้องให้ชอบด้วยกฎหมาย </br>
+              ๐ ยกเลิกที่มาของผู้บริหารท้องถิ่นรูปแบบพิเศษที่ไม่ได้มาจากการเลือกตั้ง </br>
+              ๐ ให้ ""เซ็ตซีโร่"" องค์กรอิสระและศาลรัฐธรรมนูญ </br>
+              ๐ ให้การแก้ไขรัฐธรรมนูญใช้เพียงเสียงเกินกึ่งหนึ่งของสองสภา </br>
+              ๐ ให้จัดทำรัฐธรมนูญใหม่ โดย สสร. ที่มาจากการเลือกตั้งจำนวน 200 "`,
+        },
+      ],
     }
   },
   created() {
@@ -165,14 +227,16 @@ export default {
     const is_first_fetch = this.live_vote.length === 0
     // For development: Need to bypass CORS using extension
     // @see https://chrome.google.com/webstore/detail/moesif-origin-cors-change/digfbfaphojjndkpccljibejjbppifbc/related
-    this.live_vote = await this.$axios.$get('https://elect.in.th/con-vote/data/live_vote.json')
+    this.live_vote = await this.$axios.$get(
+      'https://elect.in.th/con-vote/data/live_vote.json'
+    )
     const now = DateTime.local()
     const keys = ['con_1', 'con_2', 'con_3', 'con_4', 'con_5', 'con_6', 'con_7']
     this.live_vote.forEach((person) => {
       person.type = person.team + '/' + person.party
       person.fullname = `${person.title} ${person.name} ${person.lastname}`
       // calculate "fresh vote" to show as blinking effect
-      keys.forEach(con => {
+      keys.forEach((con) => {
         person[`${con}_is_fresh`] = isFresh(person, con)
       })
     })
@@ -182,7 +246,7 @@ export default {
       this.setFilter()
     }
 
-    this.filterPeople();
+    this.filterPeople()
   },
   fetchOnServer: false,
   methods: {
@@ -237,6 +301,14 @@ export default {
         color = '#E3E3E3'
       }
       return color
+    },
+    viewDetail(key) {
+      console.log('view', key)
+      const found = this.content_details.find((element) => element.key === key)
+      if (found !== undefined) {
+        console.log('found', found.content)
+        return found.content
+      }
     },
   },
   watch: {
@@ -338,6 +410,9 @@ export default {
       animation: 1s blink ease-out infinite;
     }
   }
+  .header {
+    cursor: pointer;
+  }
   #vote-log-table th,
   #vote-log-table td {
     font-size: 1.6rem;
@@ -363,13 +438,13 @@ export default {
 
 @keyframes blink {
   0% {
-    opacity: 1.0;
+    opacity: 1;
   }
   50% {
     opacity: 0;
   }
   100% {
-    opacity: 1.0;
+    opacity: 1;
   }
 }
 </style>
