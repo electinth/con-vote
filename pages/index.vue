@@ -106,6 +106,8 @@ import _ from 'lodash'
 import { DateTime, Interval } from 'luxon'
 import LiveBadge from '@/components/LiveBadge'
 
+const CONFIG_URL = 'https://elect.in.th/con-vote/data/config.json'
+
 function isFresh(person, key) {
   const keyUpdatedAt = `${key}_updated_at`
   if (!person[key] || !person[keyUpdatedAt]) return false
@@ -123,7 +125,6 @@ export default {
   },
   data() {
     return {
-      config_url: 'https://elect.in.th/con-vote/data/config.json',
       config: {
         "test": false,
         "live_vote_url": "https://elect.in.th/con-vote/data/live_vote.json",
@@ -244,10 +245,10 @@ export default {
     }, 15 * 1000)
   },
 
-  async asyncData({ params, $axios }) {
+  async asyncData({ params, $axios, config_url }) {
     // For development: Need to bypass CORS using extension
     // @see https://chrome.google.com/webstore/detail/moesif-origin-cors-change/digfbfaphojjndkpccljibejjbppifbc/related
-    const config = await $axios.$get(this.config_url)
+    const config = await $axios.$get(CONFIG_URL)
     return { config }
   },
 
@@ -255,7 +256,7 @@ export default {
     async fetchConfig() {
       // For development: Need to bypass CORS using extension
       // @see https://chrome.google.com/webstore/detail/moesif-origin-cors-change/digfbfaphojjndkpccljibejjbppifbc/related
-      this.config = await this.$axios.$get(this.config_url)
+      this.config = await this.$axios.$get(CONFIG_URL)
     },
 
     async fetchLive() {
