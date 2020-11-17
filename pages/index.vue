@@ -46,6 +46,16 @@
             <p v-html="viewDetail(h.key)"></p>
             <div slot="reference">
               {{ h.label }}
+              <div class="legend-wrap">
+                <template v-if="index !== 0">
+                  <div v-for="i in 4" :key="i" class="legend">
+                    <div class="circle"></div>
+                    <p class="text">
+                      {{ (con_votes[index - 1] || {})[i] || 0 }}
+                    </p>
+                  </div>
+                </template>
+              </div>
             </div>
           </el-popover>
         </th>
@@ -193,6 +203,7 @@ export default {
               ๐ ให้จัดทำรัฐธรมนูญใหม่ โดย สสร. ที่มาจากการเลือกตั้งจำนวน 200 "`,
         },
       ],
+      con_votes: [],
     }
   },
   computed: {
@@ -303,6 +314,20 @@ export default {
           return d.party === this.value
         })
       }
+
+      const cons = Array.from(Array(7).keys())
+      this.con_votes = _.map(cons, (c, index) => {
+        let group = _.groupBy(this.data, `con_${index + 1}`)
+        group = _.omit(group, '')
+        let obj = {}
+        let count = 0
+        for (const key in group) {
+          obj[key] = group[key].length
+          count = count + group[key].length
+          obj['count'] = count
+        }
+        return obj
+      })
     },
     setColor(data) {
       let color = ''
@@ -313,8 +338,6 @@ export default {
       } else if (data === '3') {
         color = '#2D3480'
       } else if (data === '4') {
-        color = '#7B90D1'
-      } else if (data === '5') {
         color = '#E3E3E3'
       }
       return color
@@ -427,6 +450,25 @@ export default {
   }
   .header {
     cursor: pointer;
+    .legend-wrap {
+      padding-left: 0;
+      .legend {
+        display: flex;
+        align-items: center;
+        margin: 0 4px;
+        .circle {
+          display: flex;
+          align-items: center;
+          width: 5px;
+          height: 5px;
+          margin-right: 3px;
+          border-radius: 50%;
+        }
+        .text {
+          font-size: 1rem;
+        }
+      }
+    }
   }
   #vote-log-table th,
   #vote-log-table td {
@@ -438,7 +480,6 @@ export default {
   }
   #vote-log-table th {
     font-weight: 700;
-    background-color: $grey-100;
     padding-top: 12px;
     padding-bottom: 12px;
   }
