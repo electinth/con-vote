@@ -1,6 +1,8 @@
 <template>
   <div class="container">
-    <h1><span v-if="config.test">(Test)</span>โค้งสุดท้าย 7 มติแก้รัฐธรรมนูญ</h1>
+    <h1>
+      <span v-if="config.test">(Test)</span>โหวตผ่าน-ไม่ผ่าน 7 มติแก้รัฐธรรมนูญ
+    </h1>
     <LiveBadge :config="config"></LiveBadge>
 
     <div class="filter-box-wrap">
@@ -136,14 +138,15 @@ export default {
   data() {
     return {
       config: {
-        "test": false,
-        "live_vote_url": "https://elect.in.th/con-vote/data/live_vote.json",
-        "test_live_vote_url": "https://elect.in.th/con-vote/data/live_vote_dev.json"
+        test: false,
+        live_vote_url: 'https://elect.in.th/con-vote/data/live_vote.json',
+        test_live_vote_url:
+          'https://elect.in.th/con-vote/data/live_vote_dev.json',
       },
       header: [
         { label: 'ชื่อ', key: 'name' },
-        { label: 'ร่างรัฐบาล', key: 'con-1' },
         { label: 'ร่างเพื่อไทย 1', key: 'con-2' },
+        { label: 'ร่างรัฐบาล', key: 'con-1' },
         { label: 'ร่างเพื่อไทย 2', key: 'con-3' },
         { label: 'ร่างเพื่อไทย 3', key: 'con-4' },
         { label: 'ร่างเพื่อไทย 4', key: 'con-5' },
