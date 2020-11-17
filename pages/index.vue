@@ -52,7 +52,15 @@
             <p v-html="viewDetail(h.key)"></p>
             <div slot="reference">
               {{ h.label }}
-              <div class="chart-warp">
+              <div
+                class="chart-warp"
+                :style="{
+                  visibility:
+                    (con_votes[index - 1] || {}).count === 0
+                      ? 'hidden'
+                      : 'visible',
+                }"
+              >
                 <div
                   v-for="i in 4"
                   :key="i"
