@@ -74,33 +74,41 @@
             {{ h.label }}
           </template>
         </th>
-        <tr v-for="d in table_data" :key="'section' + d.id" class="grid-row">
+        <tr v-for="d in table_data" :key="'section' + d.id">
           <td class="full-name">
             {{ d.fullname }}
           </td>
           <td>
-            <div
-              :class="{ circle: true, 'is-fresh': d.con_1_is_fresh }"
-              :style="{ background: setColor(d.con_1) }"
-            ></div>
+            <div class="circle-wrap">
+              <div
+                :class="{ circle: true, 'is-fresh': d.con_1_is_fresh }"
+                :style="{ background: setColor(d.con_1) }"
+              />
+            </div>
           </td>
           <td>
-            <div
-              :class="{ circle: true, 'is-fresh': d.con_2_is_fresh }"
-              :style="{ background: setColor(d.con_2) }"
-            ></div>
+            <div class="circle-wrap">
+              <div
+                :class="{ circle: true, 'is-fresh': d.con_2_is_fresh }"
+                :style="{ background: setColor(d.con_2) }"
+              />
+            </div>
           </td>
           <td>
-            <div
-              :class="{ circle: true, 'is-fresh': d.con_3_is_fresh }"
-              :style="{ background: setColor(d.con_3) }"
-            ></div>
+            <div class="circle-wrap">
+              <div
+                :class="{ circle: true, 'is-fresh': d.con_3_is_fresh }"
+                :style="{ background: setColor(d.con_3) }"
+              />
+            </div>
           </td>
           <td>
-            <div
-              :class="{ circle: true, 'is-fresh': d.con_4_is_fresh }"
-              :style="{ background: setColor(d.con_4) }"
-            ></div>
+            <div class="circle-wrap">
+              <div
+                :class="{ circle: true, 'is-fresh': d.con_4_is_fresh }"
+                :style="{ background: setColor(d.con_4) }"
+              />
+            </div>
           </td>
           <td>
             <div
@@ -505,14 +513,20 @@ export default {
 }
 .wrapper {
   margin: 40px 0;
-  .circle {
-    width: 10px;
-    height: 10px;
-    border-radius: 100%;
-    &.is-fresh {
-      animation: 1s blink ease-out infinite;
+  .circle-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    .circle {
+      width: 10px;
+      height: 10px;
+      border-radius: 100%;
+      &.is-fresh {
+        animation: 1s blink ease-out infinite;
+      }
     }
   }
+
   .header {
     cursor: pointer;
     width: 150px;
