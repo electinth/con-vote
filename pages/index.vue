@@ -43,6 +43,7 @@
       <table id="vote-log-table">
         <th v-for="(h, index) in header" :key="index" class="header">
           <el-popover
+            v-if="index !== 0"
             placement="bottom"
             :width="index == 7 ? 500 : 200"
             trigger="hover"
@@ -51,20 +52,29 @@
             <p v-html="viewDetail(h.key)"></p>
             <div slot="reference">
               {{ h.label }}
+              <div class="chart-warp">
+                <div
+                  v-for="i in 4"
+                  :key="i"
+                  class="chart"
+                  :style="{ width: calPercent(con_votes[index - 1], i) }"
+                ></div>
+              </div>
               <div class="legend-wrap">
-                <template v-if="index !== 0">
-                  <div v-for="i in 4" :key="i" class="legend">
-                    <div class="circle"></div>
-                    <p class="text">
-                      {{ (con_votes[index - 1] || {})[i] || 0 }}
-                    </p>
-                  </div>
-                </template>
+                <div v-for="i in 4" :key="i" class="legend">
+                  <div class="circle"></div>
+                  <p class="text">
+                    {{ (con_votes[index - 1] || {})[i] || 0 }}
+                  </p>
+                </div>
               </div>
             </div>
           </el-popover>
+          <template v-else>
+            {{ h.label }}
+          </template>
         </th>
-        <tr v-for="d in data" :key="'section' + d.id" class="grid-row">
+        <tr v-for="d in table_data" :key="'section' + d.id" class="grid-row">
           <td class="full-name">
             {{ d.fullname }}
           </td>
@@ -247,6 +257,26 @@ export default {
         },
       ]
     },
+    table_data() {
+      if (this.value === 'ส.ว.') {
+        return this.live_vote.filter((d) => {
+          return d.party === this.value
+        })
+      } else if (this.value === 'ส.ส.') {
+        return this.live_vote.filter((d) => {
+          return d.party !== 'ส.ว.'
+        })
+      } else if (this.value === 'ฝ่ายค้าน') {
+        return this.live_vote.filter((d) => {
+          return d.team === this.value
+        })
+      } else if (this.value === 'ฝ่ายรัฐบาล') {
+        return this.live_vote.filter((d) => {
+          return d.team === this.value
+        })
+      }
+      return this.live_vote
+    },
   },
 
   async created() {
@@ -312,7 +342,7 @@ export default {
         this.setFilter()
       }
 
-      this.filterPeople()
+      this.setConVoteTotal()
     },
 
     setFilter() {
@@ -328,41 +358,20 @@ export default {
       }
       this.options = [...this.default_options, ...this.options]
     },
-    filterList(team) {
-      return this.live_vote.filter((d) => {
-        return team === this.value
-      })
-    },
 
-    filterPeople() {
-      if (this.value === 'ทั้งหมด') {
-        this.data = this.live_vote
-      } else if (this.value === 'ส.ว.') {
-        this.data = this.live_vote.filter((d) => {
-          return d.party === this.value
-        })
-      } else if (this.value === 'ส.ส.') {
-        this.data = this.live_vote.filter((d) => {
-          return d.party !== 'ส.ว.'
-        })
-      } else if (this.value === 'ฝ่ายค้าน') {
-        this.data = this.live_vote.filter((d) => {
-          return d.team === this.value
-        })
-      } else if (this.value === 'ฝ่ายรัฐบาล') {
-        this.data = this.live_vote.filter((d) => {
-          return d.team === this.value
-        })
-      } else {
-        this.data = this.live_vote.filter((d) => {
-          return d.party === this.value
-        })
-      }
-
+    setConVoteTotal() {
       const cons = Array.from(Array(7).keys())
+
       this.con_votes = _.map(cons, (c, index) => {
-        let group = _.groupBy(this.data, `con_${index + 1}`)
-        group = _.omit(group, '')
+        let group = _.groupBy(this.table_data, `con_${index + 1}`)
+        group = _.omit(group, ['', '#REF!'])
+        group = {
+          1: group[1] || [],
+          2: group[2] || [],
+          3: group[3] || [],
+          4: group[4] || [],
+        }
+        console.log('index + 1', index + 1)
         let obj = {}
         let count = 0
         for (const key in group) {
@@ -373,6 +382,7 @@ export default {
         return obj
       })
     },
+
     setColor(data) {
       let color = ''
       if (data === '1') {
@@ -386,6 +396,18 @@ export default {
       }
       return color
     },
+
+    calPercent(con, i) {
+      if (i === 1) {
+        console.log('con', con)
+      }
+      const value = (con || {})[i] || 0
+      const total = (con || {}).count || value
+
+      const result = (value / total) * 100
+      return result + '%'
+    },
+
     viewDetail(key) {
       const found = this.content_details.find((element) => element.key === key)
       if (found !== undefined) {
@@ -395,7 +417,7 @@ export default {
   },
   watch: {
     value() {
-      this.filterPeople()
+      this.setConVoteTotal()
     },
   },
 }
@@ -406,7 +428,7 @@ export default {
   margin: 0 auto;
   min-height: 100vh;
   text-align: center;
-  padding: 30px 7%;
+  padding: 30px 5%;
 }
 .title-header {
   margin-top: 60px;
@@ -498,6 +520,26 @@ export default {
     cursor: pointer;
     width: 150px;
     max-width: 150px;
+    .chart-warp {
+      width: 100%;
+      display: flex;
+      .chart {
+        height: 3px;
+        width: 100%;
+      }
+      .chart:nth-child(1) {
+        background: $green-100;
+      }
+      .chart:nth-child(2) {
+        background: $red-100;
+      }
+      .chart:nth-child(3) {
+        background: $blue-100;
+      }
+      .chart:nth-child(4) {
+        background: $grey-100;
+      }
+    }
     .legend-wrap {
       padding-left: 0;
       .legend {
