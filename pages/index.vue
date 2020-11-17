@@ -1,6 +1,7 @@
 <template>
   <div class="container">
-    <h1>โค้งสุดท้าย 7 มติแก้รัฐธรรมนูญ</h1>
+    <Header />
+    <h1 class="title-header">โค้งสุดท้าย 7 มติแก้รัฐธรรมนูญ</h1>
     <LiveBadge :config="config"></LiveBadge>
 
     <div class="filter-box-wrap">
@@ -38,8 +39,8 @@
       <table id="vote-log-table">
         <th v-for="(h, index) in header" :key="index" class="header">
           <el-popover
-            placement="top-start"
-            width="200"
+            placement="bottom"
+            :width="index == 7 ? 500 : 200"
             trigger="hover"
             class="detail-box"
           >
@@ -50,7 +51,7 @@
           </el-popover>
         </th>
         <tr v-for="d in data" :key="'section' + d.id" class="grid-row">
-          <td>
+          <td class="full-name">
             {{ d.fullname }}
           </td>
           <td>
@@ -105,6 +106,7 @@
 import _ from 'lodash'
 import { DateTime, Interval } from 'luxon'
 import LiveBadge from '@/components/LiveBadge'
+import Header from '@/components/Header'
 import config from '@/data/config.json'
 // import live_vote_json from '@/data/config.json'
 
@@ -121,7 +123,7 @@ function isFresh(person, key) {
 
 export default {
   components: {
-    LiveBadge,
+    Header,
   },
   data() {
     return {
@@ -169,45 +171,45 @@ export default {
           key: 'con-1',
           title: 'ร่างรัฐบาล',
           content:
-            'ตั้งสภาร่างรัฐธรรมนูญ จำนวน 200 คน มาจากการเลือกตั้ง 150 คน (โดยใช้จังหวัดเป็นเขตเลือกตั้ง) และสรรหาอีก 50 คน / ห้ามแก้ไขหมวด 1 และ 2',
+            'ตั้งสภาร่างรัฐธรรมนูญ<br/>จำนวน 200 คน<br/>มาจากการเลือกตั้ง 150 คน<br/>(โดยใช้จังหวัดเป็นเขตเลือกตั้ง)<br/>และสรรหาอีก 50 คน / ห้าม<br/>แก้ไขหมวด 1 และ 2',
         },
         {
           key: 'con-2',
           title: 'ร่างเพื่อไทย 1',
           content:
-            'ตั้งสภาร่างรัฐธรรมนูญ จำนวน 200 คน มาจากการเลือกตั้ง 150 คน (โดยใช้จังหวัดเป็นเขตเลือกตั้ง) และสรรหาอีก 50 คน / ห้ามแก้ไขหมวด 1 และ 2',
+            'ตั้งสภาร่างรัฐธรรมนูญ<br/>จำนวน 200 คน<br/>มาจากการเลือกตั้ง 150 คน<br/>(โดยใช้จังหวัดเป็นเขตเลือกตั้ง)<br/>และสรรหาอีก 50 คน / ห้าม<br/>แก้ไขหมวด 1 และ 2',
         },
         {
           key: 'con-3',
           title: 'ร่างเพื่อไทย 2',
           content:
-            'ตั้งสภาร่างรัฐธรรมนูญจำนวน 200 คน มาจากการเลือกตั้งทั้งหมด (โดยใช้จังหวัดเป็นเขตเลือกตั้ง) / ห้ามแก้ไขหมวด 1 และ 2',
+            'ตั้งสภาร่างรัฐธรรมนูญ<br/>จำนวน 200 คน<br/>มาจากการเลือกตั้งทั้งหมด<br/>(โดยใช้จังหวัดเป็นเขตเลือกตั้ง) / ห้ามแก้ไขหมวด 1 และ 2',
         },
         {
           key: 'con-4',
           title: 'ร่างเพื่อไทย 3',
           content:
-            'ให้นายกรัฐมนตรีมาจากบัญชีรายชื่อที่พรรคการเมืองเสนอ หรือ ส.ส.บัญชีรายชื่อ หรือ ส.ส. จากพรรคที่มี ส.ส.ไม่น้อยกว่าร้อยละ 5 ',
+            'ให้นายกรัฐมนตรีมาจาก<br/>บัญชีรายชื่อที่พรรคการเมือง<br/>เสนอหรือ ส.ส.บัญชีรายชื่อ<br/>หรือ ส.ส. จากพรรคที่มี ส.ส.<br/>ไม่น้อยกว่าร้อยละ 5 ',
         },
         {
           key: 'con-5',
           title: 'ร่างเพื่อไทย 4',
           content:
-            'ยกเลิกบทบัญญัติที่ให้การรับรองประกาศ-คำสั่งคสช. และคำสั่งหัวหน้าคสช. รวมถึงการกระทำที่เกี่ยวข้องให้ชอบด้วยกฎหมาย',
+            'ยกเลิกบทบัญญัติที่ให้การ<br/>รับรองประกาศ-คำสั่งคสช.<br/>และคำสั่งหัวหน้าคสช. รวมถึง<br/>การกระทำที่เกี่ยวข้องให้ชอบ<br/>ด้วยกฎหมาย',
         },
         {
           key: 'con-6',
           title: 'ร่างเพื่อไทย 5',
           content:
-            'ให้ใช้ระบบเลือกตั้งแบบมีบัตรเลือกตั้งสองใบ เลือกทั้งคน-เลือกทั้งพรรค',
+            'ให้ใช้ระบบเลือกตั้งแบบมีบัตร<br/>เลือกตั้งสองใบ เลือกทั้ง<br/>คน-เลือกทั้งพรรค',
         },
         {
           key: 'con-7',
           title: 'ร่างประชาชน',
-          content: `"๐ ยกเลิกช่องทางนายกฯ คนนอก และให้นายกฯ ต้องเป็น ส.ส. </br>
+          content: `"๐ ยกเลิกช่องทางนายกฯคนนอก และให้นายกฯ ต้องเป็น ส.ส. </br>
               ๐ ยกเลิกที่มาและอำนาจ ส.ว.ชุดพิเศษของคสช. และให้ ส.ว. มาจากการเลือกตั้ง </br>
               ๐ ยกเลิกแผนยุทธศาสตร์ชาติและแผนปฏิรูปที่คสช. เขียน </br>
-              ๐ ยกเลิกบทบัญญัติที่ให้การรับรองประกาศ-คำสั่งคสช. และคำสั่งหัวหน้าคสช. รวมถึงการกระทำที่เกี่ยวข้องให้ชอบด้วยกฎหมาย </br>
+              ๐ ยกเลิกบทบัญญัติที่ให้การรับรองประกาศ-คำสั่งคสช. และคำสั่งหัวหน้าคสช.<br/>&emsp;รวมถึงการกระทำที่เกี่ยวข้องให้ชอบด้วยกฎหมาย </br>
               ๐ ยกเลิกที่มาของผู้บริหารท้องถิ่นรูปแบบพิเศษที่ไม่ได้มาจากการเลือกตั้ง </br>
               ๐ ให้ ""เซ็ตซีโร่"" องค์กรอิสระและศาลรัฐธรรมนูญ </br>
               ๐ ให้การแก้ไขรัฐธรรมนูญใช้เพียงเสียงเกินกึ่งหนึ่งของสองสภา </br>
@@ -324,7 +326,10 @@ export default {
   margin: 0 auto;
   min-height: 100vh;
   text-align: center;
-  padding: 30px 10%;
+  padding: 30px 7%;
+}
+.title-header {
+  margin-top: 60px;
 }
 .filter-box-wrap {
   display: flex;
@@ -390,7 +395,7 @@ export default {
   width: 250px;
 }
 ::v-deep.el-select .el-input__inner {
-  border-color: $grey-200;
+  border-color: black;
   font-family: 'NotoSansThai' !important;
   font-size: 1.8rem;
   font-weight: 700;
@@ -399,7 +404,6 @@ export default {
 .el-select-dropdown__item.hover {
   background: rgba($color: $yellow-100, $alpha: 0.5);
 }
-
 .wrapper {
   margin: 40px 0;
   .circle {
@@ -412,18 +416,31 @@ export default {
   }
   .header {
     cursor: pointer;
+    width: 150px;
+    max-width: 150px;
   }
+
+  .header:nth-child(1),
+  .full-name {
+    width: 310px;
+    max-width: 310px;
+    border-left: 1px solid white !important;
+  }
+  .full-name,
+  td {
+    border-bottom: 1px solid white !important;
+  }
+
   #vote-log-table th,
   #vote-log-table td {
     font-size: 1.6rem;
     color: #000;
-    border: 1px solid $grey-200;
+    border: 1px solid black;
     padding: 8px 15px;
     text-align: left;
   }
   #vote-log-table th {
     font-weight: 700;
-    background-color: $grey-100;
     padding-top: 12px;
     padding-bottom: 12px;
   }
