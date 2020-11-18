@@ -1,7 +1,9 @@
 <template>
   <div class="header">
     <div class="logo-wrapper">
-      <img :src="elect_logo" alt="" />
+      <a href="https://elect.in.th/" target="_blank" rel="noopener noreferrer">
+        <img :src="elect_logo" alt="" />
+      </a>
     </div>
     <div class="share">
       <div
@@ -51,7 +53,7 @@ export default {
           height: '40px',
         },
       ],
-      base_url: 'http://localhost:3000/con-vote/',
+      base_url: 'https://elect.in.th/con-vote/',
     }
   },
 }

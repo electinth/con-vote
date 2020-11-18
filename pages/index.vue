@@ -52,7 +52,15 @@
             <p v-html="viewDetail(h.key)"></p>
             <div slot="reference">
               {{ h.label }}
-              <div class="chart-warp">
+              <div
+                class="chart-warp"
+                :style="{
+                  visibility:
+                    (con_votes[index - 1] || {}).count === 0
+                      ? 'hidden'
+                      : 'visible',
+                }"
+              >
                 <div
                   v-for="i in 4"
                   :key="i"
@@ -74,51 +82,65 @@
             {{ h.label }}
           </template>
         </th>
-        <tr v-for="d in table_data" :key="'section' + d.id" class="grid-row">
+        <tr v-for="d in table_data" :key="'section' + d.id">
           <td class="full-name">
             <a :href="d.url" target="_blank">{{ d.fullname }}</a>
           </td>
           <td>
-            <div
-              :class="{ circle: true, 'is-fresh': d.con_1_is_fresh }"
-              :style="{ background: setColor(d.con_1) }"
-            ></div>
+            <div class="circle-wrap">
+              <div
+                :class="{ circle: true, 'is-fresh': d.con_1_is_fresh }"
+                :style="{ background: setColor(d.con_1) }"
+              />
+            </div>
           </td>
           <td>
-            <div
-              :class="{ circle: true, 'is-fresh': d.con_2_is_fresh }"
-              :style="{ background: setColor(d.con_2) }"
-            ></div>
+            <div class="circle-wrap">
+              <div
+                :class="{ circle: true, 'is-fresh': d.con_2_is_fresh }"
+                :style="{ background: setColor(d.con_2) }"
+              />
+            </div>
           </td>
           <td>
-            <div
-              :class="{ circle: true, 'is-fresh': d.con_3_is_fresh }"
-              :style="{ background: setColor(d.con_3) }"
-            ></div>
+            <div class="circle-wrap">
+              <div
+                :class="{ circle: true, 'is-fresh': d.con_3_is_fresh }"
+                :style="{ background: setColor(d.con_3) }"
+              />
+            </div>
           </td>
           <td>
-            <div
-              :class="{ circle: true, 'is-fresh': d.con_4_is_fresh }"
-              :style="{ background: setColor(d.con_4) }"
-            ></div>
+            <div class="circle-wrap">
+              <div
+                :class="{ circle: true, 'is-fresh': d.con_4_is_fresh }"
+                :style="{ background: setColor(d.con_4) }"
+              />
+            </div>
           </td>
           <td>
-            <div
-              :class="{ circle: true, 'is-fresh': d.con_5_is_fresh }"
-              :style="{ background: setColor(d.con_5) }"
-            ></div>
+            <div class="circle-wrap">
+              <div
+                :class="{ circle: true, 'is-fresh': d.con_5_is_fresh }"
+                :style="{ background: setColor(d.con_5) }"
+              ></div>
+            </div>
           </td>
           <td>
-            <div
-              :class="{ circle: true, 'is-fresh': d.con_6_is_fresh }"
-              :style="{ background: setColor(d.con_6) }"
-            ></div>
+            <div class="circle-wrap">
+              <div
+                :class="{ circle: true, 'is-fresh': d.con_6_is_fresh }"
+                :style="{ background: setColor(d.con_6) }"
+              ></div>
+            </div>
           </td>
           <td>
-            <div
-              :class="{ circle: true, 'is-fresh': d.con_7_is_fresh }"
-              :style="{ background: setColor(d.con_7) }"
-            ></div>
+            <div class="circle-wrap">
+              <div
+                :class="{ circle: true, 'is-fresh': d.con_7_is_fresh }"
+                :style="{ background: setColor(d.con_7) }"
+              ></div>
+            </div>
           </td>
         </tr>
       </table>
@@ -184,19 +206,19 @@ export default {
           key: 'con-2',
           title: 'ร่างเพื่อไทย 1',
           content:
-            'ตั้งสภาร่างรัฐธรรมนูญ<br/>จำนวน 200 คน<br/>มาจากการเลือกตั้ง 150 คน<br/>(โดยใช้จังหวัดเป็นเขตเลือกตั้ง)<br/>และสรรหาอีก 50 คน / ห้าม<br/>แก้ไขหมวด 1 และ 2',
+            'ตั้งสภาร่างรัฐธรรมนูญ<br/>จำนวน 200 คน มาจาก<br/> การเลือกตั้งทั้งหมด <br/> (โดยใช้จังหวัดเป็นเขตเลือกตั้ง)<br/> / ห้ามแก้ไขหมวด 1 และ 2',
         },
         {
           key: 'con-3',
           title: 'ร่างเพื่อไทย 2',
           content:
-            'ตั้งสภาร่างรัฐธรรมนูญ<br/>จำนวน 200 คน<br/>มาจากการเลือกตั้งทั้งหมด<br/>(โดยใช้จังหวัดเป็นเขตเลือกตั้ง) / ห้ามแก้ไขหมวด 1 และ 2',
+            'ยกเลิกที่มาของวุฒิสภา<br/>ชุดพิเศษของคสช.<br/> และอำนาจในการร่วมพิจารณา<br/>ร่างกฎหมายที่ถูกยับยั้งไว้',
         },
         {
           key: 'con-4',
           title: 'ร่างเพื่อไทย 3',
           content:
-            'ให้นายกรัฐมนตรีมาจาก<br/>บัญชีรายชื่อที่พรรคการเมือง<br/>เสนอหรือ ส.ส.บัญชีรายชื่อ<br/>หรือ ส.ส. จากพรรคที่มี ส.ส.<br/>ไม่น้อยกว่าร้อยละ 5 ',
+            'ให้นายกรัฐมนตรีมาจาก<br/>บัญชีรายชื่อที่พรรคการเมือง<br/>เสนอ หรือ ส.ส. บัญชีรายชื่อ<br/>หรือ ส.ส. จากพรรคที่มี ส.ส.<br/>ไม่น้อยกว่าร้อยละ 5 ',
         },
         {
           key: 'con-5',
@@ -213,14 +235,14 @@ export default {
         {
           key: 'con-7',
           title: 'ร่างประชาชน',
-          content: `"๐ ยกเลิกช่องทางนายกฯคนนอก และให้นายกฯ ต้องเป็น ส.ส. </br>
+          content: `๐ ยกเลิกช่องทางนายกฯคนนอก และให้นายกฯ ต้องเป็น ส.ส. </br>
               ๐ ยกเลิกที่มาและอำนาจ ส.ว.ชุดพิเศษของคสช. และให้ ส.ว. มาจากการเลือกตั้ง </br>
               ๐ ยกเลิกแผนยุทธศาสตร์ชาติและแผนปฏิรูปที่คสช. เขียน </br>
               ๐ ยกเลิกบทบัญญัติที่ให้การรับรองประกาศ-คำสั่งคสช. และคำสั่งหัวหน้าคสช.<br/>&emsp;รวมถึงการกระทำที่เกี่ยวข้องให้ชอบด้วยกฎหมาย </br>
               ๐ ยกเลิกที่มาของผู้บริหารท้องถิ่นรูปแบบพิเศษที่ไม่ได้มาจากการเลือกตั้ง </br>
-              ๐ ให้ ""เซ็ตซีโร่"" องค์กรอิสระและศาลรัฐธรรมนูญ </br>
+              ๐ ให้ "เซ็ตซีโร่" องค์กรอิสระและศาลรัฐธรรมนูญ </br>
               ๐ ให้การแก้ไขรัฐธรรมนูญใช้เพียงเสียงเกินกึ่งหนึ่งของสองสภา </br>
-              ๐ ให้จัดทำรัฐธรมนูญใหม่ โดย สสร. ที่มาจากการเลือกตั้งจำนวน 200 "`,
+              ๐ ให้จัดทำรัฐธรมนูญใหม่ โดย สสร. ที่มาจากการเลือกตั้งจำนวน 200`,
         },
       ],
       con_votes: [],
@@ -258,7 +280,9 @@ export default {
       ]
     },
     table_data() {
-      if (this.value === 'ส.ว.') {
+      if (this.value === 'ทั้งหมด') {
+        return this.live_vote
+      } else if (this.value === 'ส.ว.') {
         return this.live_vote.filter((d) => {
           return d.party === this.value
         })
@@ -274,8 +298,11 @@ export default {
         return this.live_vote.filter((d) => {
           return d.team === this.value
         })
+      } else {
+        return this.live_vote.filter((d) => {
+          return d.party === this.value
+        })
       }
-      return this.live_vote
     },
   },
 
@@ -372,7 +399,6 @@ export default {
           3: group[3] || [],
           4: group[4] || [],
         }
-        console.log('index + 1', index + 1)
         let obj = {}
         let count = 0
         for (const key in group) {
@@ -399,9 +425,6 @@ export default {
     },
 
     calPercent(con, i) {
-      if (i === 1) {
-        console.log('con', con)
-      }
       const value = (con || {})[i] || 0
       const total = (con || {}).count || value
 
@@ -427,6 +450,7 @@ export default {
 <style lang="scss" scoped>
 .container {
   margin: 0 auto;
+  max-width: 1440px;
   min-height: 100vh;
   text-align: center;
   padding: 30px 5%;
@@ -499,7 +523,7 @@ export default {
 }
 ::v-deep.el-select .el-input__inner {
   border-color: black;
-  font-family: 'NotoSansThai' !important;
+  font-family: 'NotoSansThai', 'NotoSans' !important;
   font-size: 1.8rem;
   font-weight: 700;
   color: #000;
@@ -509,14 +533,20 @@ export default {
 }
 .wrapper {
   margin: 40px 0;
-  .circle {
-    width: 10px;
-    height: 10px;
-    border-radius: 100%;
-    &.is-fresh {
-      animation: 1s blink ease-out infinite;
+  .circle-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    .circle {
+      width: 10px;
+      height: 10px;
+      border-radius: 100%;
+      &.is-fresh {
+        animation: 1s blink ease-out infinite;
+      }
     }
   }
+
   .header {
     cursor: pointer;
     width: 150px;
@@ -524,6 +554,7 @@ export default {
     .chart-warp {
       width: 100%;
       display: flex;
+      margin-top: 5px;
       .chart {
         height: 3px;
         width: 100%;
@@ -543,6 +574,7 @@ export default {
     }
     .legend-wrap {
       padding-left: 0;
+      justify-content: space-around;
       .legend {
         display: flex;
         align-items: center;
@@ -576,16 +608,19 @@ export default {
     td {
       font-size: 1.6rem;
       color: #000;
-      border: 1px solid $grey-200;
+      border: 1px solid black;
       padding: 8px 15px;
       text-align: left;
     }
 
     th {
       font-weight: 700;
-      background-color: $grey-100;
       padding-top: 12px;
       padding-bottom: 12px;
+      background: white;
+      position: sticky;
+      top: 55px;
+      box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.4);
     }
 
     tr:hover {
