@@ -38,6 +38,7 @@ export default {
 <style lang="scss" scoped>
 .live-container {
   position: fixed;
+  z-index: 100;
   top: 10px;
   display: inline-flex;
   align-items: center;
