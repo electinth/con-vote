@@ -51,7 +51,7 @@
           >
             <p v-html="viewDetail(h.key)"></p>
             <div slot="reference">
-              <div class="table-header-text">{{ h.label }}</div>
+              <div class="table-header-text" v-html="h.label"></div>
               <div
                 class="chart-warp"
                 :style="{
@@ -79,7 +79,7 @@
             </div>
           </el-popover>
           <template v-else>
-            <div class="table-header-text">{{ h.label }}</div>
+            <div class="table-header-text" v-html="h.label"></div>
           </template>
         </th>
         <tr v-for="d in table_data" :key="'section' + d.id">
@@ -180,13 +180,13 @@ export default {
       },
       header: [
         { label: 'ชื่อ', key: 'name' },
-        { label: 'ร่างเพื่อไทย 1', key: 'con-2' },
-        { label: 'ร่างรัฐบาล', key: 'con-1' },
-        { label: 'ร่างเพื่อไทย 2', key: 'con-3' },
-        { label: 'ร่างเพื่อไทย 3', key: 'con-4' },
-        { label: 'ร่างเพื่อไทย 4', key: 'con-5' },
-        { label: 'ร่างเพื่อไทย 5', key: 'con-6' },
-        { label: 'ร่างประชาชน', key: 'con-7' },
+        { label: 'ฉบับที่ 1 <br> ตั้ง สสร. เสนอโดยเพื่อไทย', key: 'con-2' },
+        { label: 'ฉบับที่ 2 <br> ตั้ง สสร. เสนอโดยรัฐบาล', key: 'con-1' },
+        { label: 'ฉบับที่ 3 <br> ยกเลิกอำนาจ ส.ว. ปฏิรูปประเทศ', key: 'con-3' },
+        { label: 'ฉบับที่ 4 <br> ยกเลิกอำนาจ ส.ว. เลือกนายกฯ', key: 'con-4' },
+        { label: 'ฉบับที่ 5 <br> ยกเลิกนิรโทษกรรม คสช.', key: 'con-5' },
+        { label: 'ฉบับที่ 6 <br> ใช้บัตรเลือกตั้ง 2 ใบ', key: 'con-6' },
+        { label: 'ฉบับที่ 7 <br> ร่างประชาชน รื้อ สร้าง ร่าง รัฐธรรมนูญใหม่', key: 'con-7' },
       ],
       // master data
       live_vote: [],
@@ -198,43 +198,43 @@ export default {
       content_details: [
         {
           key: 'con-1',
-          title: 'ร่างรัฐบาล',
+          title: 'ฉบับที่ 2 = ตั้ง สสร. เสนอโดยรัฐบาล',
           content:
             'ตั้งสภาร่างรัฐธรรมนูญ<br/>จำนวน 200 คน<br/>มาจากการเลือกตั้ง 150 คน<br/>(โดยใช้จังหวัดเป็นเขตเลือกตั้ง)<br/>และสรรหาอีก 50 คน / ห้าม<br/>แก้ไขหมวด 1 และ 2',
         },
         {
           key: 'con-2',
-          title: 'ร่างเพื่อไทย 1',
+          title: 'ฉบับที่ 1 ##<br> = ตั้ง สสร. เสนอโดยเพื่อไทย',
           content:
             'ตั้งสภาร่างรัฐธรรมนูญ<br/>จำนวน 200 คน มาจาก<br/> การเลือกตั้งทั้งหมด <br/> (โดยใช้จังหวัดเป็นเขตเลือกตั้ง)<br/> / ห้ามแก้ไขหมวด 1 และ 2',
         },
         {
           key: 'con-3',
-          title: 'ร่างเพื่อไทย 2',
+          title: 'ฉบับที่ 3 = ยกเลิกอำนาจ ส.ว. ปฏิรูปประเทศ',
           content:
             'ยกเลิกที่มาของวุฒิสภา<br/>ชุดพิเศษของคสช.<br/> และอำนาจในการร่วมพิจารณา<br/>ร่างกฎหมายที่ถูกยับยั้งไว้',
         },
         {
           key: 'con-4',
-          title: 'ร่างเพื่อไทย 3',
+          title: 'ฉบับที่ 4 = ยกเลิกอำนาจ ส.ว. เลือกนายกฯ',
           content:
             'ให้นายกรัฐมนตรีมาจาก<br/>บัญชีรายชื่อที่พรรคการเมือง<br/>เสนอ หรือ ส.ส. บัญชีรายชื่อ<br/>หรือ ส.ส. จากพรรคที่มี ส.ส.<br/>ไม่น้อยกว่าร้อยละ 5 ',
         },
         {
           key: 'con-5',
-          title: 'ร่างเพื่อไทย 4',
+          title: 'ฉบับที่ 5 = ยกเลิกนิรโทษกรรม คสช.',
           content:
             'ยกเลิกบทบัญญัติที่ให้การ<br/>รับรองประกาศ-คำสั่งคสช.<br/>และคำสั่งหัวหน้าคสช. รวมถึง<br/>การกระทำที่เกี่ยวข้องให้ชอบ<br/>ด้วยกฎหมาย',
         },
         {
           key: 'con-6',
-          title: 'ร่างเพื่อไทย 5',
+          title: 'ฉบับที่ 6 = ใช้บัตรเลือกตั้ง 2 ใบ',
           content:
             'ให้ใช้ระบบเลือกตั้งแบบมีบัตร<br/>เลือกตั้งสองใบ เลือกทั้ง<br/>คน-เลือกทั้งพรรค',
         },
         {
           key: 'con-7',
-          title: 'ร่างประชาชน',
+          title: 'ฉบับที่ 7 = ร่างประชาชน รื้อ สร้าง ร่าง รัฐธรรมนูญใหม่',
           content: `๐ ยกเลิกช่องทางนายกฯคนนอก และให้นายกฯ ต้องเป็น ส.ส. </br>
               ๐ ยกเลิกที่มาและอำนาจ ส.ว.ชุดพิเศษของคสช. และให้ ส.ว. มาจากการเลือกตั้ง </br>
               ๐ ยกเลิกแผนยุทธศาสตร์ชาติและแผนปฏิรูปที่คสช. เขียน </br>
@@ -316,7 +316,7 @@ export default {
     this.fetchLive()
     setInterval(() => {
       this.fetchLive()
-    }, 15 * 1000)
+    }, 30 * 1000)
   },
 
   async asyncData({ params, $axios, config_url }) {
@@ -343,7 +343,7 @@ export default {
         this.config,
         is_test ? 'test_live_vote_url' : 'live_vote_url'
       )
-      this.live_vote = await this.$axios.$get(live_data_url)
+      this.live_vote = await this.$axios.$get(`${live_data_url}?t=${Date.now()}`)
       // this.live_vote = await this.$axios.$get('https://elect.in.th/con-vote/data/live_vote.json')
       const now = DateTime.local()
       const keys = [
@@ -619,6 +619,7 @@ export default {
       padding-bottom: 12px;
       background: white;
       position: sticky;
+      z-index: 1;
       top: 55px;
       box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.4);
     }
