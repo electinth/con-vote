@@ -51,7 +51,7 @@
           >
             <p v-html="viewDetail(h.key)"></p>
             <div slot="reference">
-              {{ h.label }}
+              <div class="table-header-text">{{ h.label }}</div>
               <div
                 class="chart-warp"
                 :style="{
@@ -79,7 +79,7 @@
             </div>
           </el-popover>
           <template v-else>
-            {{ h.label }}
+            <div class="table-header-text">{{ h.label }}</div>
           </template>
         </th>
         <tr v-for="d in table_data" :key="'section' + d.id">
@@ -642,6 +642,55 @@ export default {
     }
   }
 }
+
+/* Using plain CSS */
+@media (max-width: 980px) {
+  .legend-wrap {
+    .legend {
+      .text {
+        font-size: 3rem;
+      }
+    }
+  }
+
+  ::v-deep.el-select .el-input__inner {
+    font-size: 2.4rem;
+  }
+  .el-select-dropdown__item {
+    font-size: 2.4rem;
+  }
+
+  .wrapper {
+    overflow: auto;
+    #vote-log-table {
+      th {
+        top: 0;
+        box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.4);
+        border: 1px solid black;
+        vertical-align: top;
+        margin: 0;
+      }
+      td {
+        font-size: 2.4rem;
+      }
+      .header .legend-wrap  {
+        // flex-direction: column;
+        display: grid;
+        grid-template-columns: 50% 50%;
+        .legend {
+          .text {
+            font-size: 2rem;
+          }
+          .circle {
+            width: 10px;
+            height: 10px;
+          }
+        }
+      }
+    }
+  }
+}
+
 
 @keyframes blink {
   0% {
