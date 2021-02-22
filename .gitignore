@@ -92,3 +92,6 @@ sw.*
 # package lock
 package-lock
 package-lock.json
+
+# con-vote
+live_vote.*
