@@ -22,7 +22,7 @@ export default {
         if (now <= end && now >= start) {
           return "Live"
         } else if (now > end) {
-          return "Was Live"
+          return "Live Ended"
         }
       }
       return "Standby"
@@ -71,7 +71,7 @@ export default {
     animation: 2s blink ease-in-out infinite;
   }
 }
-.is-was-live {
+.is-live-ended {
   background: #666666;
   color: white;
 }

@@ -322,7 +322,7 @@ export default {
   async asyncData({ params, $axios, config_url }) {
     // For development: Need to bypass CORS using extension
     // @see https://chrome.google.com/webstore/detail/moesif-origin-cors-change/digfbfaphojjndkpccljibejjbppifbc/related
-    const config = await $axios.$get(CONFIG_URL)
+    const config = await $axios.$get(`${CONFIG_URL}?t=${Date.now()}`)
     return { config }
   },
 
@@ -330,7 +330,7 @@ export default {
     async fetchConfig() {
       // For development: Need to bypass CORS using extension
       // @see https://chrome.google.com/webstore/detail/moesif-origin-cors-change/digfbfaphojjndkpccljibejjbppifbc/related
-      this.config = await this.$axios.$get(CONFIG_URL)
+      this.config = await this.$axios.$get(`${CONFIG_URL}?t=${Date.now()}`)
     },
 
     async fetchLive() {
